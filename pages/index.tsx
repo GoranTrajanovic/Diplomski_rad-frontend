@@ -2,9 +2,15 @@ import { useState } from "react";
 import Head from "next/head";
 import Form from "../components/Form/Form";
 import styles from "../styles/Home.module.css";
+import { chromium, devices } from "playwright";
+import { useRouter } from "next/router";
+import FetchedLinks from "./api/FetchedLinks";
+import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 
 export default function Home() {
 	const [currentInputValue, setCurrentInputValue] = useState("");
+	const [buttonClicked, setButtonClicked] = useState(false);
+	const router = useRouter();
 
 	function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentInputValue(e.currentTarget.value);
@@ -13,6 +19,27 @@ export default function Home() {
 
 	function handleSubmitButton(e: React.MouseEvent<HTMLButtonElement>) {
 		console.log("Button clicked");
+		setButtonClicked(() => true);
+		router.push(`/?link=${currentInputValue}`);
+		// router.push(`/?link=${currentInputValue}`, undefined, { shallow: true });
+		/* (async () => {
+			const browser = await chromium.launch();
+			const context = await browser.newContext();
+			// const context = await browser.newContext(devices["iPhone 11"]);
+			const page = await context.newPage();
+
+			await page.goto(currentInputValue);
+
+			const links = await page.locator("a");
+			console.log("Links from getLinks.ts:");
+			console.dir(links);
+
+			// Teardown
+			await context.close();
+			await browser.close();
+		})(); */
+
+		// console.dir(getLinks(currentInputValue));
 	}
 
 	return (
@@ -29,7 +56,43 @@ export default function Home() {
 					handleInputChange={handleInputChange}
 					handleSubmitButton={handleSubmitButton}
 				/>
+				{/* {buttonClicked && <FetchedLinks />} */}
 			</main>
 		</>
 	);
+}
+
+export async function getServerSideProps(context: { query: { link: string } }) {
+	const link = context.query.link || "";
+	console.log("This is link from getServerSideProps");
+	console.log(link);
+
+	const browser = await chromium.launch();
+	const contextPW = await browser.newContext();
+	// const context = await browser.newContext(devices["iPhone 11"]);
+	const page = await contextPW.newPage();
+
+	try {
+		await page.goto(link);
+		const links = await page.locator("a");
+		const linksCount = await links.count();
+		const hrefs = [];
+		let fullURLs = [];
+		const texts = await page.getByRole("link").allTextContents();
+
+		for (let i = 0; i < linksCount; i++) {
+			hrefs.push(await links.nth(i).getAttribute("href"));
+		}
+
+		console.log("Links from index.tsx:");
+		fullURLs = makeURLsFromHrefs(link, hrefs);
+	} catch (err) {
+		console.log(err);
+	}
+
+	// Teardown
+	await contextPW.close();
+	await browser.close();
+
+	return { props: { link } };
 }
