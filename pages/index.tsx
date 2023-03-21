@@ -6,8 +6,13 @@ import { chromium, devices } from "playwright";
 import { useRouter } from "next/router";
 import FetchedLinks from "./api/FetchedLinks";
 import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
+import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
 
-export default function Home() {
+type HomeProps = {
+	fullURLs: string[];
+};
+
+export default function Home({ fullURLs }: HomeProps) {
 	const [currentInputValue, setCurrentInputValue] = useState("");
 	const [buttonClicked, setButtonClicked] = useState(false);
 	const router = useRouter();
@@ -56,6 +61,8 @@ export default function Home() {
 					handleInputChange={handleInputChange}
 					handleSubmitButton={handleSubmitButton}
 				/>
+
+				<ListOfURLs fullURLs={fullURLs} />
 				{/* {buttonClicked && <FetchedLinks />} */}
 			</main>
 		</>
@@ -64,8 +71,11 @@ export default function Home() {
 
 export async function getServerSideProps(context: { query: { link: string } }) {
 	const link = context.query.link || "";
-	console.log("This is link from getServerSideProps");
-	console.log(link);
+	const hrefs = [];
+	let fullURLs: string[] = [];
+
+	// console.log("This is link from getServerSideProps");
+	// console.log(link);
 
 	const browser = await chromium.launch();
 	const contextPW = await browser.newContext();
@@ -76,8 +86,6 @@ export async function getServerSideProps(context: { query: { link: string } }) {
 		await page.goto(link);
 		const links = await page.locator("a");
 		const linksCount = await links.count();
-		const hrefs = [];
-		let fullURLs = [];
 		const texts = await page.getByRole("link").allTextContents();
 
 		for (let i = 0; i < linksCount; i++) {
@@ -86,6 +94,7 @@ export async function getServerSideProps(context: { query: { link: string } }) {
 
 		console.log("Links from index.tsx:");
 		fullURLs = makeURLsFromHrefs(link, hrefs);
+		// takeScreenshotsForAllURLs(fullURLs);
 	} catch (err) {
 		console.log(err);
 	}
@@ -94,5 +103,5 @@ export async function getServerSideProps(context: { query: { link: string } }) {
 	await contextPW.close();
 	await browser.close();
 
-	return { props: { link } };
+	return { props: { fullURLs } };
 }
