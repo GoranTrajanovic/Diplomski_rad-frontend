@@ -3,14 +3,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { chromium, devices } from "playwright";
 
 type Data = {
-	msg: string;
+	url?: string;
+	errorMsg?: string;
 };
 
 export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<Data>
 ) {
-	const URLSforProcessing: string[] = req.body.selectedURLs;
+	const URLSforProcessing: string[] = req.body.url;
 	console.log(URLSforProcessing);
 
 	const browser = await chromium.launch();
@@ -19,10 +20,13 @@ export default async function handler(
 	const page = await contextPW.newPage();
 
 	try {
-		await page.goto(URLSforProcessing[0]);
-		await page.screenshot({ path: "newimg.png", fullPage: true });
+		// await page.goto(URLSforProcessing[0]);
+		// await page.screenshot({ path: "newimg.png", fullPage: true });
 
-		res.status(200).json({ msg: `Done with ${URLSforProcessing.length}` });
+		setTimeout(() => {
+			res.status(200).json({ url: req.body.url });
+		}, Math.floor(Math.random() * 5000) + 1000);
+
 		/*
 		const links = await page.locator("a");
 		const linksCount = await links.count();

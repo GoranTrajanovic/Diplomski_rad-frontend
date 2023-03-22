@@ -10,9 +10,14 @@ type ListOfURLsProps = {
 	fullURLs: string[];
 };
 
+type URLsStatusProps = ("unselected" | "processing" | "succeeded" | "error")[];
+
 export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const [selectedURLs, setSelectedURLs] = useState<string[]>([]);
 	const [allURLsSelected, setAllURLsSelected] = useState<boolean>(false);
+	const [URLsStatus, setURLsStatus] = useState<URLsStatusProps>(
+		fullURLs.map(url => "unselected")
+	);
 	const ref = useRef<HTMLInputElement[]>([]);
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -40,21 +45,37 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	}
 
 	async function handleProcessButton(e: React.MouseEvent<HTMLButtonElement>) {
-		// fetch("http://localhost:3000/api/screenshots", {
-		console.log(selectedURLs);
-		const res = await fetch("/api/post_screenshots", {
-			method: "POST",
-			body: JSON.stringify({ selectedURLs }),
-			headers: { "content-type": "application/json" },
+		setURLsStatus(
+			fullURLs.map(url =>
+				selectedURLs.includes(url) ? "processing" : "unselected"
+			)
+		);
+
+		selectedURLs.forEach(async url => {
+			const res = await fetch("/api/post_screenshots", {
+				method: "POST",
+				body: JSON.stringify({ url }),
+				headers: { "content-type": "application/json" },
+			});
+
+			if (!res.ok) {
+				setURLsStatus(state =>
+					fullURLs.map((urlTwo, index) => {
+						return url === urlTwo ? "error" : state[index];
+					})
+				);
+				// const error = await res.text();
+				// throw new Error(error);
+			}
+
+			const data = await res.json();
+
+			setURLsStatus(state =>
+				fullURLs.map((url, index) => {
+					return url === data.url ? "succeeded" : state[index];
+				})
+			);
 		});
-
-		if (!res.ok) {
-			const error = await res.text();
-			throw new Error(error);
-		}
-
-		const data = await res.json();
-		console.log(data);
 	}
 
 	return (
@@ -78,9 +99,10 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 						/>
 						{item}
 					</label>
-					<LoadingSpinner />
-					<SuccessIcon />
-					<ErrorIcon />
+					{URLsStatus[index] === "processing" ? <LoadingSpinner /> : null}
+					{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
+					{URLsStatus[index] === "error" ? <ErrorIcon /> : null}
+					{/* <ErrorIcon /> */}
 				</div>
 			))}
 			<button onClick={e => handleProcessButton(e)}>Process</button>
