@@ -56,11 +56,13 @@ export default function Home({ fullURLs }: HomeProps) {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className={styles.main}>
-				<Form
-					currentInputValue={currentInputValue}
-					handleInputChange={handleInputChange}
-					handleSubmitButton={handleSubmitButton}
-				/>
+				<div>
+					<Form
+						currentInputValue={currentInputValue}
+						handleInputChange={handleInputChange}
+						handleSubmitButton={handleSubmitButton}
+					/>
+				</div>
 
 				<ListOfURLs fullURLs={fullURLs} />
 				{/* {buttonClicked && <FetchedLinks />} */}

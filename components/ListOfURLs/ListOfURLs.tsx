@@ -1,4 +1,10 @@
 import { useRef, useState } from "react";
+import { chromium, devices } from "playwright";
+import takeScreenshotsForAllURLs from "@/helper_functions/takeScreenshotsForAllURLs";
+import LoadingSpinner from "../AnimatedIcons/LoadingSpinner/LoadingSpinner";
+import SuccessIcon from "../AnimatedIcons/SuccessIcon/SuccessIcon";
+import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
+import styles from "./ListOfURLs.module.css";
 
 type ListOfURLsProps = {
 	fullURLs: string[];
@@ -33,6 +39,24 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 		}
 	}
 
+	async function handleProcessButton(e: React.MouseEvent<HTMLButtonElement>) {
+		// fetch("http://localhost:3000/api/screenshots", {
+		console.log(selectedURLs);
+		const res = await fetch("/api/post_screenshots", {
+			method: "POST",
+			body: JSON.stringify({ selectedURLs }),
+			headers: { "content-type": "application/json" },
+		});
+
+		if (!res.ok) {
+			const error = await res.text();
+			throw new Error(error);
+		}
+
+		const data = await res.json();
+		console.log(data);
+	}
+
 	return (
 		<div>
 			<label>
@@ -40,20 +64,26 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 				Select all
 			</label>
 			{fullURLs.map((item, index) => (
-				<label>
-					<input
-						type="checkbox"
-						name="link"
-						value={item}
-						onChange={handleChange}
-						ref={element => {
-							ref.current[index] = element!;
-							// ref.current[index] = ref.current[index] === null ? element : null;
-						}}
-					/>
-					{item}
-				</label>
+				<div className={styles.wrapper}>
+					<label>
+						<input
+							type="checkbox"
+							name="link"
+							value={item}
+							onChange={handleChange}
+							ref={element => {
+								ref.current[index] = element!;
+								// ref.current[index] = ref.current[index] === null ? element : null;
+							}}
+						/>
+						{item}
+					</label>
+					<LoadingSpinner />
+					<SuccessIcon />
+					<ErrorIcon />
+				</div>
 			))}
+			<button onClick={e => handleProcessButton(e)}>Process</button>
 		</div>
 	);
 }
