@@ -1,6 +1,4 @@
 import { useRef, useState } from "react";
-import { chromium, devices } from "playwright";
-import takeScreenshotsForAllURLs from "@/helper_functions/takeScreenshotsForAllURLs";
 import LoadingSpinner from "../AnimatedIcons/LoadingSpinner/LoadingSpinner";
 import SuccessIcon from "../AnimatedIcons/SuccessIcon/SuccessIcon";
 import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
@@ -16,9 +14,11 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const [selectedURLs, setSelectedURLs] = useState<string[]>([]);
 	const [allURLsSelected, setAllURLsSelected] = useState<boolean>(false);
 	const [URLsStatus, setURLsStatus] = useState<URLsStatusProps>(
-		fullURLs.map(url => "unselected")
+		fullURLs.map(() => "unselected")
 	);
 	const ref = useRef<HTMLInputElement[]>([]);
+
+	console.log("Rendered...");
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		if (selectedURLs.includes(event.target.value)) {
@@ -64,8 +64,8 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 						return url === urlTwo ? "error" : state[index];
 					})
 				);
-				// const error = await res.text();
-				// throw new Error(error);
+				const error = await res.text();
+				throw new Error(error);
 			}
 
 			const data = await res.json();
@@ -94,7 +94,6 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 							onChange={handleChange}
 							ref={element => {
 								ref.current[index] = element!;
-								// ref.current[index] = ref.current[index] === null ? element : null;
 							}}
 						/>
 						{item}
@@ -102,7 +101,6 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 					{URLsStatus[index] === "processing" ? <LoadingSpinner /> : null}
 					{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
 					{URLsStatus[index] === "error" ? <ErrorIcon /> : null}
-					{/* <ErrorIcon /> */}
 				</div>
 			))}
 			<button onClick={e => handleProcessButton(e)}>Process</button>

@@ -20,6 +20,7 @@ export default async function handler(
 	let URLSubpath = URLWithoutHttps.substring(URLWithoutHttps.indexOf("/") + 1);
 	URLSubpath = URLSubpath === "" ? "root" : URLSubpath;
 
+	let timeAtStart = Date.now();
 	let today = new Date();
 	let date =
 		today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
@@ -109,20 +110,11 @@ export default async function handler(
 		*/
 
 		res.status(200).json({ url: req.body.url });
-
-		/*
-		const links = await page.locator("a");
-		const linksCount = await links.count();
-		const texts = await page.getByRole("link").allTextContents();
-
-		for (let i = 0; i < linksCount; i++) {
-			hrefs.push(await links.nth(i).getAttribute("href"));
-		}
-
-		console.log("Links from index.tsx:");
-		fullURLs = makeURLsFromHrefs(link, hrefs);
-	} */
-		// takeScreenshotsForAllURLs(fullURLs);
+		console.log(
+			`It took ${
+				(Date.now() - timeAtStart) / 1000
+			} seconds to complete ${URLWithoutHttps}`
+		);
 	} catch (err) {
 		console.log(err);
 		res.status(404).json({ errorMsg: "Error occured." });
