@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const COMPONENT_LIST = ["Form"];
+const COMPONENT_LIST = ["BrowseAllButton"];
 
 function writeToFile(componentName, extension, content) {
 	fs.writeFile(componentName + extension, content, () => {});

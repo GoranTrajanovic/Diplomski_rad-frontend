@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import FetchedLinks from "./api/FetchedLinks";
 import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
+import BrowseAllButton from "../components/BrowseAllButton/BrowseAllButton";
 
 type HomeProps = {
 	fullURLs: string[];
@@ -66,6 +67,7 @@ export default function Home({ fullURLs }: HomeProps) {
 
 				<ListOfURLs fullURLs={fullURLs} />
 				{/* {buttonClicked && <FetchedLinks />} */}
+				<BrowseAllButton />
 			</main>
 		</>
 	);
