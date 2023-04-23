@@ -1,5 +1,5 @@
 import { fetcher } from "../api/fetcher/fetcher";
-import styles from "./WebSites.module.sass";
+import styles from "./websites.module.sass";
 
 type WebSitesProps = {
 	webSites: dataProps[];

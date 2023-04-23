@@ -2,6 +2,7 @@
 import fs, { mkdirSync } from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chromium, firefox, webkit, devices } from "playwright";
+import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 
 type Data = {
 	url?: string;
@@ -115,8 +116,37 @@ export default async function handler(
 				(Date.now() - timeAtStart) / 1000
 			} seconds to complete ${URLWithoutHttps}`
 		);
+
+		uploadToBackend(dir, URLWithoutHttps);
 	} catch (err) {
 		console.log(err);
 		res.status(404).json({ errorMsg: "Error occured." });
 	}
+}
+
+async function uploadToBackend(dir: string, URLWithoutHttps: string) {
+	const client = new ApolloClient({
+		uri: `${process.env.NEXT_PUBLIC_STRAPI_ROOT}/graphql`,
+		cache: new InMemoryCache(),
+	});
+
+	const { data } = await client.mutate({
+		mutation: gql`
+			mutation createWebsite {
+				createWebsite(
+					data: { Root_URL: "https://googleeeeeee.com", Web_Vitals_Score: "15" }
+				) {
+					data {
+						attributes {
+							Root_URL
+						}
+					}
+				}
+			}
+		`,
+	});
+
+	console.log("from postSSs", data);
+
+	return { props: { data } };
 }
