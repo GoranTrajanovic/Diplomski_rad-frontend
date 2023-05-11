@@ -54,11 +54,15 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 
 		selectedURLs.map(url => {
 			if (isRootURL(url)) {
+				uploadRootWebPageToBackend("url");
+
+				/* 
 				const client = new ApolloClient({
 					uri: `${process.env.NEXT_PUBLIC_STRAPI_ROOT}/graphql`,
 					cache: new InMemoryCache(),
 				});
-
+				
+				
 				const ROOT_WEB_MUTATION = gql`
 					mutation createWebsite($url: String!) {
 						createWebsite(data: { Root_URL: $url, Web_Vitals_Score: "15" }) {
@@ -84,7 +88,7 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 					console.log("from LOURLs", data);
 				} catch (e) {
 					console.log("error from LOURLs", e);
-				}
+				} */
 			}
 		});
 
@@ -161,7 +165,7 @@ async function uploadRootWebPageToBackend(url: string) {
 		cache: new InMemoryCache(),
 	});
 
-	const ROOT_WEB_MUTATION = gql`
+	/* const ROOT_WEB_MUTATION = gql`
 		mutation createWebsite($url: String!) {
 			createWebsite(data: { Root_URL: $url, Web_Vitals_Score: "15" }) {
 				data {
@@ -180,7 +184,7 @@ async function uploadRootWebPageToBackend(url: string) {
 				url,
 			},
 		}
-	);
+	); */
 
 	try {
 		// const { data } = await client.mutate({
@@ -196,8 +200,7 @@ async function uploadRootWebPageToBackend(url: string) {
 		// 		}
 		// 	`,
 		// });
-
-		console.log("from LOURLs", data);
+		// console.log("from LOURLs", data);
 	} catch (e) {
 		console.log("error from LOURLs", e);
 	}
