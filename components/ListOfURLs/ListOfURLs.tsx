@@ -106,16 +106,17 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 					})
 				);
 				const error = await res.text();
-				throw new Error(error);
+				// throw new Error(error);
+				console.log("ERROR", error);
+			} else {
+				const data = await res.json();
+
+				setURLsStatus(state =>
+					fullURLs.map((url, index) => {
+						return url === data.url ? "succeeded" : state[index];
+					})
+				);
 			}
-
-			const data = await res.json();
-
-			setURLsStatus(state =>
-				fullURLs.map((url, index) => {
-					return url === data.url ? "succeeded" : state[index];
-				})
-			);
 		});
 	}
 
