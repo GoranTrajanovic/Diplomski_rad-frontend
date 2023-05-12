@@ -10,13 +10,14 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<Data>
 ) {
-	const url: string = req.body.url;
+	const urlArray: string[] = req.body.urlArray;
+	console.log(urlArray);
 	try {
 		const resExt = await fetch(
 			`${process.env.BACKEND_SCREENSHOTS_PROCESSING_URL}`,
 			{
 				method: "POST",
-				body: JSON.stringify({ url }),
+				body: JSON.stringify({ urlArray }),
 				headers: { "content-type": "application/json" },
 			}
 		);
