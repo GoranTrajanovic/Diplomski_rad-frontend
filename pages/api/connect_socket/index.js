@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import { io } from "socket.io-client";
 
 export default async function handler(req, res) {
 	if (res.socket.server.io) {
@@ -7,28 +8,28 @@ export default async function handler(req, res) {
 		return;
 	}
 
-	const io = new Server(res.socket.server);
-	res.socket.server.io = io;
+	const ioInternal = new Server(res.socket.server);
+	res.socket.server.io = ioInternal;
 
-	// const onConnection = socket => {
-	// 	const messageHandler = (io, socket) => {
-	// 		const createdMessage = msg => {
-	// 			socket.broadcast.emit("newIncomingMessage", msg);
-	// 		};
-
-	// 		socket.on("createdMessage", createdMessage);
-	// 	};
-	// };
-
-	// Define actions inside
-	io.on("connection", socket => {
+	ioInternal.on("connection", socket => {
 		socket.broadcast.emit(
 			"newIncomingMessage",
 			"Hi from Nextjs API for socket.io"
 		);
 	});
 
-	console.log("Setting up socket");
+	console.log("[Nextjs] Socket set-up!");
+
+	// const resExt = await fetch(`${process.env.BACKEND_SOCKET_URL}`);
+
+	// console.log(resExt);
+
+	const socket = io("http://127.0.0.1:8888");
+
+	socket.on("newIncomingMessageFromBackend", msg => {
+		console.log(msg);
+	});
+
 	res.end();
 	/* try {
 		// const resExt = await fetch(`${process.env.BACKEND_SOCKET_URL}`, {

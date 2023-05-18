@@ -27,7 +27,7 @@ export default function Home({ fullURLs }: HomeProps) {
 	}, []);
 
 	async function socketInitializer() {
-		await fetch("/api/connect_socket");
+		const res = await fetch("/api/connect_socket");
 
 		socket = io();
 
