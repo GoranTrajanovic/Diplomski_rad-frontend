@@ -1,9 +1,12 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import LoadingSpinner from "../AnimatedIcons/LoadingSpinner/LoadingSpinner";
 import SuccessIcon from "../AnimatedIcons/SuccessIcon/SuccessIcon";
 import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
 import styles from "./ListOfURLs.module.css";
 import { ApolloClient, InMemoryCache, gql, useMutation } from "@apollo/client";
+import io from "socket.io-client";
+
+let socket;
 
 type ListOfURLsProps = {
 	fullURLs: string[];
@@ -20,6 +23,21 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const ref = useRef<HTMLInputElement[]>([]);
 
 	console.log("Rendered...");
+
+	useEffect(() => {
+		socketInitializer();
+		console.log("UseEffect fired");
+	}, []);
+
+	async function socketInitializer() {
+		const res = await fetch("/api/connect_socket");
+
+		socket = io();
+
+		socket.on("progress", data => {
+			console.log("from UI in LoURLs", data);
+		});
+	}
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		if (selectedURLs.includes(event.target.value)) {

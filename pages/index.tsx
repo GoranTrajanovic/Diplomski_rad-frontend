@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Head from "next/head";
 import Form from "../components/Form/Form";
 import styles from "../styles/Home.module.css";
@@ -8,9 +8,6 @@ import FetchedLinks from "./api/FetchedLinks";
 import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
 import BrowseAllButton from "../components/BrowseAllButton/BrowseAllButton";
-import io from "socket.io-client";
-
-let socket;
 
 type HomeProps = {
 	fullURLs: string[];
@@ -21,21 +18,6 @@ export default function Home({ fullURLs }: HomeProps) {
 	const [buttonClicked, setButtonClicked] = useState(false);
 	const router = useRouter();
 
-	useEffect(() => {
-		socketInitializer();
-		console.log("UseEffect fired");
-	}, []);
-
-	async function socketInitializer() {
-		const res = await fetch("/api/connect_socket");
-
-		socket = io();
-
-		socket.on("progress", data => {
-			console.log("from UI", data);
-		});
-	}
-
 	function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentInputValue(e.currentTarget.value);
 		console.log(currentInputValue);
@@ -45,25 +27,6 @@ export default function Home({ fullURLs }: HomeProps) {
 		console.log("Button clicked");
 		setButtonClicked(() => true);
 		router.push(`/?link=${currentInputValue}`);
-		// router.push(`/?link=${currentInputValue}`, undefined, { shallow: true });
-		/* (async () => {
-			const browser = await chromium.launch();
-			const context = await browser.newContext();
-			// const context = await browser.newContext(devices["iPhone 11"]);
-			const page = await context.newPage();
-
-			await page.goto(currentInputValue);
-
-			const links = await page.locator("a");
-			console.log("Links from getLinks.ts:");
-			console.dir(links);
-
-			// Teardown
-			await context.close();
-			await browser.close();
-		})(); */
-
-		// console.dir(getLinks(currentInputValue));
 	}
 
 	return (
