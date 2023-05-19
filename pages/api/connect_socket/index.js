@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
 import { io } from "socket.io-client";
 
+let SOCKET;
+
 export default async function handler(req, res) {
 	if (res.socket.server.io) {
 		console.log("Already set up");
@@ -12,6 +14,7 @@ export default async function handler(req, res) {
 	res.socket.server.io = ioInternal;
 
 	ioInternal.on("connection", socket => {
+		SOCKET = socket;
 		socket.broadcast.emit(
 			"newIncomingMessage",
 			"Hi from Nextjs API for socket.io"
@@ -26,8 +29,9 @@ export default async function handler(req, res) {
 
 	const socket = io("http://127.0.0.1:8888");
 
-	socket.on("newIncomingMessageFromBackend", msg => {
-		console.log(msg);
+	socket.on("progress", data => {
+		console.log(data);
+		SOCKET.emit("progress", data);
 	});
 
 	res.end();

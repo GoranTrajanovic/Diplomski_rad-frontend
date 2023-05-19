@@ -31,8 +31,8 @@ export default function Home({ fullURLs }: HomeProps) {
 
 		socket = io();
 
-		socket.on("newIncomingMessage", msg => {
-			console.log(msg);
+		socket.on("progress", data => {
+			console.log("from UI", data);
 		});
 	}
 
