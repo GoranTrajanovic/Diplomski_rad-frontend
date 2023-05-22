@@ -11,7 +11,7 @@ export default async function handler(
 	res: NextApiResponse<Data>
 ) {
 	const urlArray: string[] = req.body.urlArray;
-	console.log(urlArray);
+	console.log("from post_ss", urlArray);
 	try {
 		const resExt = await fetch(
 			`${process.env.BACKEND_SCREENSHOTS_PROCESSING_URL}`,

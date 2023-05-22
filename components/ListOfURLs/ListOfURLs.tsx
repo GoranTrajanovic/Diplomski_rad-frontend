@@ -12,17 +12,34 @@ type ListOfURLsProps = {
 	fullURLs: string[];
 };
 
+type URLprocessingProgressPropsObj = {
+	url: string;
+	currentStep: -1 | 0 | 1 | 2 | 3 | 4 | 5 | number;
+};
+
 type URLsStatusProps = ("unselected" | "processing" | "succeeded" | "error")[];
 
 export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const [selectedURLs, setSelectedURLs] = useState<string[]>([]);
 	const [allURLsSelected, setAllURLsSelected] = useState<boolean>(false);
+	const [URLprocessingProgress, setURLprocessingProgress] = useState<
+		URLprocessingProgressPropsObj[]
+	>(
+		fullURLs.map(url => {
+			const obj: URLprocessingProgressPropsObj = {
+				url,
+				currentStep: -1,
+			};
+			return obj;
+		})
+	);
 	const [URLsStatus, setURLsStatus] = useState<URLsStatusProps>(
 		fullURLs.map(() => "unselected")
 	);
 	const ref = useRef<HTMLInputElement[]>([]);
 
 	console.log("Rendered...");
+	console.log(URLprocessingProgress);
 
 	useEffect(() => {
 		socketInitializer();
@@ -36,6 +53,17 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 
 		socket.on("progress", data => {
 			console.log("from UI in LoURLs", data);
+			console.log("from UI in LoURLs", URLprocessingProgress);
+			setURLprocessingProgress(prevState => {
+				return prevState.map(obj => {
+					return obj.url === data.url
+						? { url: obj.url, currentStep: ++obj.currentStep }
+						: { url: obj.url, currentStep: obj.currentStep };
+				});
+			});
+			/* setURLprocessingProgress(prevState => {
+				return [...prevState, { url: data.url, currentStep: data.currentStep }];
+			}); */
 		});
 	}
 
@@ -70,45 +98,15 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 			)
 		);
 
-		selectedURLs.map(url => {
-			if (isRootURL(url)) {
-				uploadRootWebPageToBackend("url");
-
-				/* 
-				const client = new ApolloClient({
-					uri: `${process.env.NEXT_PUBLIC_STRAPI_ROOT}/graphql`,
-					cache: new InMemoryCache(),
-				});
-				
-				
-				const ROOT_WEB_MUTATION = gql`
-					mutation createWebsite($url: String!) {
-						createWebsite(data: { Root_URL: $url, Web_Vitals_Score: "15" }) {
-							data {
-								attributes {
-									Root_URL
-								}
-							}
-						}
-					}
-				`;
-
-				const [mutateFunction, { loading, error, data }] = useMutation(
-					ROOT_WEB_MUTATION,
-					{
-						variables: {
-							url,
-						},
-					}
-				);
-
-				try {
-					console.log("from LOURLs", data);
-				} catch (e) {
-					console.log("error from LOURLs", e);
-				} */
-			}
-		});
+		setURLprocessingProgress(
+			fullURLs.map(url => {
+				const obj: URLprocessingProgressPropsObj = {
+					url,
+					currentStep: selectedURLs.includes(url) ? 0 : -1,
+				};
+				return obj;
+			})
+		);
 
 		const res = await fetch("/api/post_screenshots", {
 			method: "POST",
@@ -124,6 +122,14 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 			const data = await res.json();
 		}
 	}
+
+	const progressLabelClassName = (index: number) => {
+		return URLprocessingProgress[index].currentStep === 5
+			? "progressCounterCompleted"
+			: URLprocessingProgress[index].currentStep >= 0
+			? "progressCounterInProgress"
+			: "progressCounterHidden";
+	};
 
 	return (
 		<div>
@@ -145,6 +151,10 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 						/>
 						{item}
 					</label>
+					<label className={styles[progressLabelClassName(index)]}>
+						{URLprocessingProgress[index].currentStep}/5
+					</label>
+
 					{URLsStatus[index] === "processing" ? <LoadingSpinner /> : null}
 					{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
 					{URLsStatus[index] === "error" ? <ErrorIcon /> : null}

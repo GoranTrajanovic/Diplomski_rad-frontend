@@ -1,3 +1,15 @@
 .wrapper {
 	display: flex;
 }
+
+.progressCounterCompleted {
+	color: green;
+}
+
+.progressCounterInProgress {
+	color: red;
+}
+
+.progressCounterHidden {
+	display: none !important;
+}
