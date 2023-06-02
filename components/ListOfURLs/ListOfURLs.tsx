@@ -38,12 +38,11 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	);
 	const ref = useRef<HTMLInputElement[]>([]);
 
-	console.log("Rendered...");
-	console.log(URLprocessingProgress);
+	// console.log("Rendered...");
+	// console.log(URLprocessingProgress);
 
 	useEffect(() => {
 		socketInitializer();
-		console.log("UseEffect fired");
 	}, []);
 
 	async function socketInitializer() {
@@ -52,8 +51,8 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 		socket = io();
 
 		socket.on("progress", data => {
-			console.log("from UI in LoURLs", data);
-			console.log("from UI in LoURLs", URLprocessingProgress);
+			// console.log("from UI in LoURLs", data);
+			// console.log("from UI in LoURLs", URLprocessingProgress);
 			setURLprocessingProgress(prevState => {
 				return prevState.map(obj => {
 					return obj.url === data.url
@@ -64,6 +63,10 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 			/* setURLprocessingProgress(prevState => {
 				return [...prevState, { url: data.url, currentStep: data.currentStep }];
 			}); */
+		});
+
+		socket.on("no_root", data => {
+			console.log("Ok, no root.");
 		});
 	}
 

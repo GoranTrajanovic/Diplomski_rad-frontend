@@ -11,7 +11,7 @@ export default async function handler(
 	res: NextApiResponse<Data>
 ) {
 	const urlArray: string[] = req.body.urlArray;
-	console.log("from post_ss", urlArray);
+	// console.log("from post_ss", urlArray);
 	try {
 		const resExt = await fetch(
 			`${process.env.BACKEND_SCREENSHOTS_PROCESSING_URL}`,
@@ -28,11 +28,11 @@ export default async function handler(
 		}
 
 		const data = await resExt.json();
-		console.log(
+		/* console.log(
 			`Data received in Nextjs API call for posting screenshots: ${JSON.stringify(
 				data
 			)}`
-		);
+		); */
 		res.status(200).json({ msg: "Nextjs API - OK" });
 		// uploadToBackend(dir, URLWithoutHttps);
 	} catch (err) {

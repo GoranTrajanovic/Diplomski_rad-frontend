@@ -40,7 +40,7 @@ export default async function handler(
 				}
 			`,
 		});
-		console.log("from postSSs", data);
+		// console.log("from postSSs", data);
 	} catch (e) {
 		console.log("error", e);
 	}

@@ -5,7 +5,7 @@ let SOCKET;
 
 export default async function handler(req, res) {
 	if (res.socket.server.io) {
-		console.log("Already set up");
+		console.log("Socket connection already set up");
 		res.end();
 		return;
 	}
@@ -30,8 +30,12 @@ export default async function handler(req, res) {
 	const socket = io("http://127.0.0.1:8888");
 
 	socket.on("progress", data => {
-		console.log(data);
 		SOCKET.emit("progress", data);
+	});
+
+	socket.on("no_root", data => {
+		console.log("Ok, no root. (middleware)");
+		SOCKET.emit("no_root", "no_root");
 	});
 
 	res.end();
