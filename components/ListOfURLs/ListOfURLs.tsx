@@ -3,7 +3,6 @@ import LoadingSpinner from "../AnimatedIcons/LoadingSpinner/LoadingSpinner";
 import SuccessIcon from "../AnimatedIcons/SuccessIcon/SuccessIcon";
 import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
 import styles from "./ListOfURLs.module.css";
-import { ApolloClient, InMemoryCache, gql, useMutation } from "@apollo/client";
 import io from "socket.io-client";
 
 let socket;
@@ -166,61 +165,4 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 			<button onClick={e => handleProcessButton(e)}>Process</button>
 		</div>
 	);
-}
-
-function isRootURL(url: string) {
-	const cleanURL = url.slice(url.indexOf("//") + 2);
-	if (
-		cleanURL.indexOf("/") === -1 ||
-		cleanURL.slice(cleanURL.indexOf("/") + 1) === ""
-	)
-		return true;
-	else return false;
-}
-
-async function uploadRootWebPageToBackend(url: string) {
-	const client = new ApolloClient({
-		uri: `${process.env.NEXT_PUBLIC_STRAPI_ROOT}/graphql`,
-		cache: new InMemoryCache(),
-	});
-
-	/* const ROOT_WEB_MUTATION = gql`
-		mutation createWebsite($url: String!) {
-			createWebsite(data: { Root_URL: $url, Web_Vitals_Score: "15" }) {
-				data {
-					attributes {
-						Root_URL
-					}
-				}
-			}
-		}
-	`;
-
-	const [mutateFunction, { loading, error, data }] = useMutation(
-		ROOT_WEB_MUTATION,
-		{
-			variables: {
-				url,
-			},
-		}
-	); */
-
-	try {
-		// const { data } = await client.mutate({
-		// 	mutation: gql`
-		// 		mutation createWebsite($url: String!) {
-		// 			createWebsite(data: { Root_URL: $url, Web_Vitals_Score: "15" }) {
-		// 				data {
-		// 					attributes {
-		// 						Root_URL
-		// 					}
-		// 				}
-		// 			}
-		// 		}
-		// 	`,
-		// });
-		// console.log("from LOURLs", data);
-	} catch (e) {
-		console.log("error from LOURLs", e);
-	}
 }
