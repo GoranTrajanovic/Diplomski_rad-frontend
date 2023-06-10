@@ -246,20 +246,25 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 									/>
 								</ListItemIcon>
 								<ListItemText id={labelId} primary={url} />
-								<ListItemIcon>
+								<ListItemIcon className={styles.spinnerIcon}>
 									{URLsStatus[index] === "processing" ? (
 										URLprocessingProgress[index].currentStep === 0 ? (
 											<CircularProgress
 												className={styles.loading_spinner}
-												size="1.5rem"
+												size="2.1rem"
 											/>
 										) : (
-											<CircularProgress
-												className={styles.progress_spinner}
-												size="1.5rem"
-												variant="determinate"
-												value={URLprocessingProgress[index].currentStep * 20}
-											/>
+											<div className={styles.progressContainer}>
+												<CircularProgress
+													className={styles.progress_spinner}
+													size="2.1rem"
+													variant="determinate"
+													value={URLprocessingProgress[index].currentStep * 20}
+												/>
+												<span className={styles.progressText}>
+													{URLprocessingProgress[index].currentStep * 20}%
+												</span>
+											</div>
 										)
 									) : null}
 									{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
