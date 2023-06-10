@@ -13,3 +13,20 @@
 .progressCounterHidden {
 	display: none !important;
 }
+
+.select_all_list_item {
+	/* border-bottom: 2px dashed #aaa; */
+	background-color: #eee;
+}
+
+button.button_emphasised {
+	padding: 1em 1.75em;
+}
+
+.loading_spinner {
+	color: orange;
+}
+
+.progress_spinner {
+	color: greenyellow;
+}

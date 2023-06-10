@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Head from "next/head";
-import Form from "../components/Form/Form";
 import styles from "../styles/Home.module.css";
 import { chromium, devices } from "playwright";
 import { useRouter } from "next/router";
-import FetchedLinks from "./api/FetchedLinks";
 import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
-import BrowseAllButton from "../components/BrowseAllButton/BrowseAllButton";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Navigation from "@/modules/Navigation/Navigation";
 
 type HomeProps = {
 	fullURLs: string[];
@@ -29,6 +29,8 @@ export default function Home({ fullURLs }: HomeProps) {
 		router.push(`/?link=${currentInputValue}`);
 	}
 
+	console.log(fullURLs);
+
 	return (
 		<>
 			<Head>
@@ -38,17 +40,27 @@ export default function Home({ fullURLs }: HomeProps) {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className={styles.main}>
+				<Navigation></Navigation>
+				<div className={styles.link_form}>
+					<TextField
+						variant="outlined"
+						label="Insert your link here..."
+						className={styles.text_field}
+					></TextField>
+					<Button variant="outlined">Submit</Button>
+				</div>
+
 				<div>
-					<Form
+					{/* <Form
 						currentInputValue={currentInputValue}
 						handleInputChange={handleInputChange}
 						handleSubmitButton={handleSubmitButton}
-					/>
+					/> */}
 				</div>
 
 				<ListOfURLs fullURLs={fullURLs} />
 				{/* {buttonClicked && <FetchedLinks />} */}
-				<BrowseAllButton />
+				{/* <BrowseAllButton /> */}
 			</main>
 		</>
 	);

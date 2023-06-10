@@ -5,6 +5,16 @@ import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
 import styles from "./ListOfURLs.module.css";
 import io from "socket.io-client";
 
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
+import CircularProgress from "@mui/material/CircularProgress";
+
 let socket;
 
 type ListOfURLsProps = {
@@ -59,6 +69,25 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 						: { url: obj.url, currentStep: obj.currentStep };
 				});
 			});
+
+			if (data.currentStep === 5) {
+				/* const targetIndex: number = (_data: any) => {
+					for (let i = 0; i < fullURLs.length; i++) {
+						const url = fullURLs[i];
+						if (url === data.url) return i;
+						else return -1;
+					}
+				}; */
+
+				setURLsStatus(prevState => {
+					for (let i = 0; i < fullURLs.length; i++) {
+						const url = fullURLs[i];
+						if (url === data.url) prevState[i] = "succeeded";
+					}
+					return [...prevState];
+				});
+			}
+
 			/* setURLprocessingProgress(prevState => {
 				return [...prevState, { url: data.url, currentStep: data.currentStep }];
 			}); */
@@ -69,29 +98,56 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 		});
 	}
 
-	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-		if (selectedURLs.includes(event.target.value)) {
-			setSelectedURLs(s => s.filter(item => item !== event.target.value));
+	/* function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+		// console.log("value", Object.values(event.target));
+		// console.log("value", Object.values(event));
+		const parentHTML = event.target.outerHTML;
+		const value = parentHTML.slice(
+			parentHTML.indexOf("https"),
+			parentHTML.length - 2
+		);
+		if (selectedURLs.includes(value)) {
+			setSelectedURLs(s => s.filter(item => item !== value));
 		} else {
-			setSelectedURLs(s => [...s, event.target.value]);
+			setSelectedURLs(s => [...s, value]);
 		}
-	}
+	} */
 
-	function handleChangeAll() {
+	const handleChange = (url: string) => () => {
+		if (selectedURLs.includes(url)) {
+			setSelectedURLs(s => s.filter(item => item !== url));
+			setAllURLsSelected(false);
+		} else {
+			setSelectedURLs(s => [...s, url]);
+		}
+	};
+
+	const handleChangeAll = () => () => {
 		if (allURLsSelected) {
 			setAllURLsSelected(false);
-			for (let i = 0; i < ref.current.length; i++) {
-				ref.current[i].checked = false;
-			}
+
 			setSelectedURLs([]);
 		} else {
 			setAllURLsSelected(true);
-			for (let i = 0; i < ref.current.length; i++) {
-				ref.current[i].checked = true;
-				setSelectedURLs(ref.current.map(item => item.value));
-			}
+			setSelectedURLs([...fullURLs]);
 		}
-	}
+	};
+
+	// function handleChangeAll() {
+	// 	if (allURLsSelected) {
+	// 		setAllURLsSelected(false);
+	// 		for (let i = 0; i < ref.current.length; i++) {
+	// 			ref.current[i].checked = false;
+	// 		}
+	// 		setSelectedURLs([]);
+	// 	} else {
+	// 		setAllURLsSelected(true);
+	// 		for (let i = 0; i < ref.current.length; i++) {
+	// 			ref.current[i].checked = true;
+	// 			setSelectedURLs(ref.current.map(item => item.value));
+	// 		}
+	// 	}
+	// }
 
 	async function handleProcessButton(e: React.MouseEvent<HTMLButtonElement>) {
 		setURLsStatus(
@@ -133,36 +189,123 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 			: "progressCounterHidden";
 	};
 
+	const handleToggle = (num: number) => {
+		console.log(num);
+	};
+
+	console.log("selectedURLs", selectedURLs);
+
+	const URLlist = (
+		<>
+			<List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+				<ListItem
+					key={0}
+					secondaryAction={
+						<IconButton edge="end" aria-label="comments"></IconButton>
+					}
+					onClick={handleChangeAll()}
+					disablePadding
+					className={styles.select_all_list_item}
+				>
+					<ListItemButton role={undefined} dense>
+						<ListItemIcon>
+							<Checkbox
+								edge="start"
+								checked={selectedURLs.length === 5}
+								tabIndex={-1}
+								disableRipple
+								inputProps={{ "aria-labelledby": "select-all" }}
+							/>
+						</ListItemIcon>
+						<ListItemText id={"select-all"} primary={"Select all"} />
+					</ListItemButton>
+				</ListItem>
+				{fullURLs.map((url, index) => {
+					const labelId = url;
+
+					return (
+						<ListItem
+							key={index}
+							secondaryAction={
+								<IconButton edge="end" aria-label="comments"></IconButton>
+							}
+							onClick={handleChange(url)}
+							disablePadding
+							/* ref={element => {
+								ref.current[index] = element!;
+							}} */
+						>
+							<ListItemButton role={undefined} dense>
+								<ListItemIcon>
+									<Checkbox
+										edge="start"
+										checked={selectedURLs.includes(url)}
+										tabIndex={-1}
+										disableRipple
+										inputProps={{ "aria-labelledby": labelId }}
+									/>
+								</ListItemIcon>
+								<ListItemText id={labelId} primary={url} />
+								<ListItemIcon>
+									{URLsStatus[index] === "processing" ? (
+										URLprocessingProgress[index].currentStep === 0 ? (
+											<CircularProgress
+												className={styles.loading_spinner}
+												size="1.5rem"
+											/>
+										) : (
+											<CircularProgress
+												className={styles.progress_spinner}
+												size="1.5rem"
+												variant="determinate"
+												value={URLprocessingProgress[index].currentStep * 20}
+											/>
+										)
+									) : null}
+									{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
+									{URLsStatus[index] === "error" ? <ErrorIcon /> : null}
+								</ListItemIcon>
+							</ListItemButton>
+						</ListItem>
+					);
+				})}
+			</List>
+
+			{/* <div className={styles.wrapper}>
+				<label>
+					<input
+						type="checkbox"
+						name="link"
+						value={item}
+						onChange={handleChange}
+						ref={element => {
+							ref.current[index] = element!;
+						}}
+					/>
+					{item}
+				</label>
+				<label className={styles[progressLabelClassName(index)]}>
+					{URLprocessingProgress[index].currentStep}/5
+				</label>
+
+				{URLsStatus[index] === "processing" ? <LoadingSpinner /> : null}
+				{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
+				{URLsStatus[index] === "error" ? <ErrorIcon /> : null}
+			</div> */}
+		</>
+	);
 	return (
 		<div>
-			<label>
-				<input type="checkbox" name="selectAll" onChange={handleChangeAll} />
-				Select all
-			</label>
-			{fullURLs.map((item, index) => (
-				<div className={styles.wrapper}>
-					<label>
-						<input
-							type="checkbox"
-							name="link"
-							value={item}
-							onChange={handleChange}
-							ref={element => {
-								ref.current[index] = element!;
-							}}
-						/>
-						{item}
-					</label>
-					<label className={styles[progressLabelClassName(index)]}>
-						{URLprocessingProgress[index].currentStep}/5
-					</label>
-
-					{URLsStatus[index] === "processing" ? <LoadingSpinner /> : null}
-					{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
-					{URLsStatus[index] === "error" ? <ErrorIcon /> : null}
-				</div>
-			))}
-			<button onClick={e => handleProcessButton(e)}>Process</button>
+			{fullURLs.length ? URLlist : null}
+			{fullURLs.length ? (
+				<Button
+					variant="contained"
+					className={styles.button_emphasised}
+					onClick={e => handleProcessButton(e)}
+				>
+					Process URLs
+				</Button>
+			) : null}
 		</div>
 	);
 }

@@ -3,11 +3,30 @@
 	flex-direction: column;
 	justify-content: center;
 	width: 70%;
+	max-width: 950px;
 	margin: auto;
 	gap: 15px;
-	margin-top: 200px;
+	margin-top: 50px;
 }
 
+.main .link_form {
+	display: flex;
+	justify-content: space-between;
+}
+
+.main .link_form > div {
+	margin-right: 2em;
+}
+
+.main .link_form button {
+	padding: 0 1.75em;
+}
+
+.main .link_form .text_field {
+	width: 90%;
+}
+
+/* 
 .main div > input {
 	width: 400px;
 	padding: 2.5px;
@@ -31,4 +50,4 @@
 
 .main label:hover {
 	cursor: pointer;
-}
+} */
