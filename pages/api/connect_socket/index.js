@@ -34,5 +34,10 @@ export default async function handler(req, res) {
 		SOCKET.emit("no_root", "no_root");
 	});
 
+	socket.on("error_in_processing", data => {
+		console.log("Ok, error. (middleware)", data);
+		SOCKET.emit("error_in_processing", data);
+	});
+
 	res.end();
 }

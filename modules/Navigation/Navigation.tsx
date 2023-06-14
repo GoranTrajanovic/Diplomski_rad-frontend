@@ -10,6 +10,7 @@ export default function Navigation() {
 				className={`${styles.link_button} ${
 					pathname === "/" ? styles.active : ""
 				}`}
+				href="/"
 			>
 				Process URLs
 			</Button>
@@ -17,6 +18,7 @@ export default function Navigation() {
 				className={`${styles.link_button} ${
 					pathname === "/projects" ? styles.active : ""
 				}`}
+				href="./projects"
 			>
 				Projects
 			</Button>

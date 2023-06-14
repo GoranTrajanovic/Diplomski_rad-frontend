@@ -1,9 +1,9 @@
 /* taken from: https://github.com/Kamonlojn/svg-icons-animate/blob/master/example.html*/
 
 .svg-box {
-	display: inline-block;
+	/* display: inline-block; */
 	position: relative;
-	width: 150px;
+	display: flex;
 }
 
 .circular {
@@ -22,9 +22,13 @@
 
 .cross {
 	stroke: #ff6245;
-	stroke-width: 2.5;
+	stroke-width: 4.5;
 	stroke-linecap: round;
 	position: absolute;
+	scale: 0.8;
+	width: 40px;
+	height: 40px;
+	top: -10px;
 	/* 	top: 54px;
 	left: 54px;
 	width: 40px;

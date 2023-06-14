@@ -24,7 +24,8 @@ export default async function handler(
 
 		if (!resExt.ok) {
 			const error = await resExt.text();
-			throw new Error(error);
+			// throw new Error(error);
+			console.log("Error occured with fetching... (post_screenshots/index.ts");
 		}
 
 		const data = await resExt.json();

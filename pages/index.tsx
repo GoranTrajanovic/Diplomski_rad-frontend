@@ -7,7 +7,6 @@ import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Navigation from "@/modules/Navigation/Navigation";
 
 type HomeProps = {
 	fullURLs: string[];
@@ -40,7 +39,6 @@ export default function Home({ fullURLs }: HomeProps) {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className={styles.main}>
-				<Navigation></Navigation>
 				<div className={styles.link_form}>
 					<TextField
 						variant="outlined"

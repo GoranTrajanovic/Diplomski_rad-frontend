@@ -96,6 +96,17 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 		socket.on("no_root", data => {
 			console.log("Ok, no root.");
 		});
+
+		socket.on("error_in_processing", data => {
+			console.log("Error received on UI socket: " + JSON.stringify(data));
+			setURLsStatus(prevState => {
+				for (let i = 0; i < fullURLs.length; i++) {
+					const url = fullURLs[i];
+					if (url === data.url) prevState[i] = "error";
+				}
+				return [...prevState];
+			});
+		});
 	}
 
 	/* function handleChange(event: React.ChangeEvent<HTMLInputElement>) {

@@ -1,5 +1,10 @@
 import { fetcher } from "../api/fetcher/fetcher";
-import styles from "./websites.module.sass";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Typography from "@mui/material/Typography";
+import { CardActionArea } from "@mui/material";
+import styles from "./projects.module.sass";
 
 type WebSitesProps = {
 	webSites: dataProps[];
@@ -42,7 +47,31 @@ export default function WebSites({ webSites }: WebSitesProps) {
 				const { Root_URL, Frontpage_Screenshot, Web_Vitals_Score, webpages } =
 					webSite.attributes;
 				return (
-					<div key={webSite.id} className={styles.webSiteCard}>
+					<Card sx={{ maxWidth: 345 }}>
+						<CardActionArea>
+							<CardMedia
+								component="img"
+								height="140"
+								image={
+									process.env.NEXT_PUBLIC_STRAPI_ROOT +
+									Frontpage_Screenshot.data.attributes.url
+								}
+								alt={Root_URL}
+							/>
+							<CardContent>
+								<h3>{Root_URL}</h3>
+								<span>WVS:{Web_Vitals_Score}</span>
+							</CardContent>
+						</CardActionArea>
+					</Card>
+				);
+			})}
+		</div>
+	);
+}
+
+{
+	/* <div key={webSite.id} className={styles.webSiteCard}>
 						<h2>{Root_URL}</h2>
 						<img
 							src={
@@ -55,11 +84,7 @@ export default function WebSites({ webSites }: WebSitesProps) {
 						Pages: {webpages.data.length}
 						<br />
 						WVS: {Web_Vitals_Score}
-					</div>
-				);
-			})}
-		</div>
-	);
+					</div>  */
 }
 
 export async function getStaticProps() {
