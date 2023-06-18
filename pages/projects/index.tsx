@@ -1,10 +1,27 @@
 import { fetcher } from "../api/fetcher/fetcher";
+import { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { CardActionArea } from "@mui/material";
+import { CardActionArea, CardActions, Divider } from "@mui/material";
 import styles from "./projects.module.sass";
+import styles2 from "../../styles/Home.module.css";
+
+import ClickAwayListener from "@mui/material/ClickAwayListener";
+import Box from "@mui/material/Box";
+import Popper from "@mui/material/Popper";
+import Fade from "@mui/material/Fade";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import ManageSearchIcon from "@mui/icons-material/ManageSearch";
+import FindInPageIcon from "@mui/icons-material/FindInPage";
+
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+
+import PreviewIcon from "@mui/icons-material/Preview";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import MoreURLsActionButton from "../../components/Buttons/MoreURLsActionButton/MoreURLsActionButton";
 
 type WebSitesProps = {
 	webSites: dataProps[];
@@ -41,13 +58,37 @@ type webSitesObjProps = {
 
 export default function WebSites({ webSites }: WebSitesProps) {
 	console.log(webSites);
+	if (webSites.length === 1) {
+		webSites = [...webSites, ...webSites, ...webSites];
+	}
+
+	const [open, setOpen] = useState(false);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(event.currentTarget);
+		setOpen(previousOpen => !previousOpen);
+	};
+
+	const handleClickAway = () => {
+		console.log("called!");
+		setOpen(false);
+	};
+
+	const canBeOpen = open && Boolean(anchorEl);
+	const id = canBeOpen ? "transition-popper" : undefined;
+
 	return (
-		<div style={{ display: "flex", flexDirection: "row" }}>
+		<div className={`${styles.main} ${styles2.main}`}>
 			{webSites.map(webSite => {
 				const { Root_URL, Frontpage_Screenshot, Web_Vitals_Score, webpages } =
 					webSite.attributes;
 				return (
-					<Card sx={{ maxWidth: 345 }}>
+					<Card
+						sx={{ maxWidth: 345 }}
+						className={styles.webSiteCard}
+						onClick={handleClick}
+					>
 						<CardActionArea>
 							<CardMedia
 								component="img"
@@ -60,9 +101,25 @@ export default function WebSites({ webSites }: WebSitesProps) {
 							/>
 							<CardContent>
 								<h3>{Root_URL}</h3>
-								<span>WVS:{Web_Vitals_Score}</span>
+								<p>
+									<b>WVS: </b>
+									{Web_Vitals_Score}
+								</p>
+								<p>
+									<b>Processed webpages: </b>
+									{webpages.data.length}
+								</p>
 							</CardContent>
 						</CardActionArea>
+						<CardActions>
+							<div style={{ margin: "0 .6em .6em" }}>
+								<MoreURLsActionButton />
+
+								<IconButton aria-label="delete">
+									<DeleteForeverIcon className={styles.delete_button} />
+								</IconButton>
+							</div>
+						</CardActions>
 					</Card>
 				);
 			})}

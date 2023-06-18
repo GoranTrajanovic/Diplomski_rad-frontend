@@ -13,6 +13,8 @@
     "@apollo/client": "^3.7.12",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@grapecity/wijmo.react.input": "^5.20231.888",
+    "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.4",
     "@next/font": "13.1.6",
     "@types/node": "18.13.0",
