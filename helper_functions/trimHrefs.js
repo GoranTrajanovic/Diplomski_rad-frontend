@@ -5,7 +5,8 @@ export function trimHrefs(array) {
 		const element = array[i];
 		if ((element.match(new RegExp("/", "g")) || []).length === 1)
 			newArray.push(element);
-		else break; // can be only continue if we wanna include links from, lets say: footer
+		// else break; // can be only continue if we wanna include links from, lets say: footer
+		else continue;
 	}
 
 	return newArray;

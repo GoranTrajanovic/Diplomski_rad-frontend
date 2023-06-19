@@ -24,21 +24,26 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import MoreURLsActionButton from "../../components/Buttons/MoreURLsActionButton/MoreURLsActionButton";
 
 type WebSitesProps = {
-	webSites: dataProps[];
+	webSites: websiteDataProps[];
 };
 
 type webSitesResponseProps = {
-	data: dataProps[];
+	data: websiteDataProps[];
 	meta: Object;
 };
 
-type dataProps = {
+type websiteDataProps = {
 	id: number;
 	attributes: webSitesObjProps;
 };
 
+type webpageDataProps = {
+	id: number;
+	attributes: { URL: string };
+};
+
 type webPagesProps = {
-	data: dataProps[];
+	data: webpageDataProps[];
 };
 
 type webSitesObjProps = {
@@ -83,6 +88,9 @@ export default function WebSites({ webSites }: WebSitesProps) {
 			{webSites.map(webSite => {
 				const { Root_URL, Frontpage_Screenshot, Web_Vitals_Score, webpages } =
 					webSite.attributes;
+				/* const webPagesURLsStored: { id: number; attributes: { URL: string } } =
+					webpages.data; */
+				console.log("webpages.data", webpages.data);
 				return (
 					<Card
 						sx={{ maxWidth: 345 }}
@@ -113,7 +121,10 @@ export default function WebSites({ webSites }: WebSitesProps) {
 						</CardActionArea>
 						<CardActions>
 							<div style={{ margin: "0 .6em .6em" }}>
-								<MoreURLsActionButton />
+								<MoreURLsActionButton
+									link={Root_URL}
+									URLsInDBasObj={webpages.data}
+								/>
 
 								<IconButton aria-label="delete">
 									<DeleteForeverIcon className={styles.delete_button} />
@@ -146,7 +157,7 @@ export default function WebSites({ webSites }: WebSitesProps) {
 
 export async function getStaticProps() {
 	let webSitesResponse: webSitesResponseProps;
-	let webSites: dataProps[] = [];
+	let webSites: websiteDataProps[] = [];
 
 	try {
 		webSitesResponse = await fetcher(
