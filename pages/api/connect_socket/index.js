@@ -39,5 +39,5 @@ export default async function handler(req, res) {
 		SOCKET.emit("error_in_processing", data);
 	});
 
-	res.end();
+	// res.end();
 }
