@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Box from "@mui/material/Box";
 import Popper from "@mui/material/Popper";
@@ -8,25 +8,31 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import CircularProgress from "@mui/material/CircularProgress";
 import ListOfURLs from "@/components/ListOfURLs/ListOfURLs";
 
-type URLobj = {
-	id: number;
-	attributes: { URL: string };
+type Data = {
+	newWebpageURLs: string[];
+	numOfStoredURLs: number;
+	errorMsg?: string;
+};
+
+type storedURLsType = {
+	rootWebsiteURL: string;
+	numOfWebpages: number;
 };
 
 export default function MoreURLsActionButton({
-	link,
-	URLsInDBasObj,
+	rootURL,
+	websiteID,
+	setNumOfStoredURLs,
 }: {
-	link: string;
-	URLsInDBasObj: URLobj[];
+	rootURL: string;
+	websiteID: number;
+	setNumOfStoredURLs: Dispatch<SetStateAction<storedURLsType[]>>;
 }) {
 	const [open, setOpen] = useState(false);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [loadedURLs, setLoadedURLs] = useState([]);
-	const [newURLs, setNewURLs] = useState([]);
-	const fullRootURL = "https://" + link + "/";
-	const URLsInDB = URLsInDBasObj.map(obj => "https://" + obj.attributes.URL);
-	URLsInDB.push(fullRootURL);
+	const [newURLs, setNewURLs] = useState<string[]>([]);
+
+	const fullRootURL = "https://" + rootURL + "/";
 
 	const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -34,29 +40,59 @@ export default function MoreURLsActionButton({
 
 		const res = await fetch("/api/check_webpage_urls", {
 			method: "POST",
-			body: JSON.stringify({ link: fullRootURL }),
+			body: JSON.stringify({ rootURL: fullRootURL, websiteID }),
 			headers: { "content-type": "application/json" },
 		});
 
 		if (!res.ok) {
 			const error = await res.text();
 			// throw new Error(error);
-			console.log("ERROR", error);
 		} else {
-			const data = await res.json();
-			console.log("JSON", data);
+			const data: Data = await res.json();
 
-			setNewURLs(
-				data.fullURLs.filter((url: string) => !URLsInDB.includes(url))
-			);
+			setNewURLs(data.newWebpageURLs);
+			setNumOfStoredURLs((s: storedURLsType[]) => {
+				return s.map((obj: storedURLsType) => {
+					return {
+						rootWebsiteURL: obj.rootWebsiteURL,
+						numOfWebpages:
+							obj.rootWebsiteURL === rootURL
+								? data.numOfStoredURLs
+								: obj.numOfWebpages,
+					};
+				});
+			});
 		}
 	};
 
-	console.log("URLsInDB", URLsInDB);
-
-	const handleClickAway = () => {
-		console.log("called!");
+	const handleClickAway = async () => {
 		setOpen(false);
+
+		const res = await fetch("/api/check_webpage_urls", {
+			method: "POST",
+			body: JSON.stringify({ rootURL: fullRootURL, websiteID }),
+			headers: { "content-type": "application/json" },
+		});
+
+		if (!res.ok) {
+			const error = await res.text();
+			// throw new Error(error);
+		} else {
+			const data: Data = await res.json();
+
+			setNewURLs(data.newWebpageURLs);
+			setNumOfStoredURLs((s: storedURLsType[]) => {
+				return s.map((obj: storedURLsType) => {
+					return {
+						rootWebsiteURL: obj.rootWebsiteURL,
+						numOfWebpages:
+							obj.rootWebsiteURL === rootURL
+								? data.numOfStoredURLs
+								: obj.numOfWebpages,
+					};
+				});
+			});
+		}
 	};
 
 	const canBeOpen = open && Boolean(anchorEl);
@@ -72,7 +108,7 @@ export default function MoreURLsActionButton({
 					onClick={handleClick}
 					aria-describedby={id}
 				>
-					Check for more URLs
+					Check for New URLs
 				</Button>
 				<Popper id={id} open={open} anchorEl={anchorEl} transition>
 					{({ TransitionProps }) => (
@@ -80,7 +116,7 @@ export default function MoreURLsActionButton({
 							<Box
 								sx={{
 									border: 1,
-									p: 1,
+									p: 3,
 									bgcolor: "background.paper",
 								}}
 							>

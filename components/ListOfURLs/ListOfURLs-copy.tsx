@@ -1,8 +1,9 @@
 import { useRef, useState, useEffect } from "react";
+import LoadingSpinner from "../AnimatedIcons/LoadingSpinner/LoadingSpinner";
 import SuccessIcon from "../AnimatedIcons/SuccessIcon/SuccessIcon";
 import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
 import styles from "./ListOfURLs.module.css";
-import io from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
@@ -13,8 +14,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
-
-let socket;
+import { useWebPagesFromDB } from "@/stores/useWebPagesFromDB/useWebPagesFromDB";
 
 type ListOfURLsProps = {
 	fullURLs: string[];
@@ -26,6 +26,15 @@ type URLprocessingProgressPropsObj = {
 };
 
 type URLsStatusProps = ("unselected" | "processing" | "succeeded" | "error")[];
+
+type ServerToClientEvents = {
+	progress: (data: { error: string; url: string; currentStep: number }) => void;
+	no_root: (data: string) => void;
+	error_in_processing: (data: { url: string; error: Boolean }) => void;
+};
+
+// let socket = io();
+let socket: Socket<ServerToClientEvents>;
 
 export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const [selectedURLs, setSelectedURLs] = useState<string[]>([]);
@@ -44,18 +53,46 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const [URLsStatus, setURLsStatus] = useState<URLsStatusProps>(
 		fullURLs.map(() => "unselected")
 	);
+	const updateWebPagesURLsFromDB = useWebPagesFromDB(
+		s => s.updateWebPagesURLsFromDB
+	);
 	const ref = useRef<HTMLInputElement[]>([]);
 
+	// console.log("Rendered...");
+	// console.log(URLprocessingProgress);
+
 	useEffect(() => {
-		socketInitializer();
+		socket = io();
+		return () => {
+			console.log("Closing socket...");
+			socket.close();
+		};
 	}, []);
 
 	async function socketInitializer() {
-		const res = await fetch("/api/connect_socket");
+		/* function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+		// console.log("value", Object.values(event.target));
+		// console.log("value", Object.values(event));
+		const parentHTML = event.target.outerHTML;
+		const value = parentHTML.slice(
+			parentHTML.indexOf("https"),
+			parentHTML.length - 2
+		);
+		if (selectedURLs.includes(value)) {
+			setSelectedURLs(s => s.filter(item => item !== value));
+		} else {
+			setSelectedURLs(s => [...s, value]);
+		}
+	} */
+		/* setURLprocessingProgress(prevState => {
+			return [...prevState, { url: data.url, currentStep: data.currentStep }];
+		}); */
+	}
 
-		socket = io();
-
+	if (socket) {
 		socket.on("progress", data => {
+			// console.log("from UI in LoURLs", data);
+			// console.log("from UI in LoURLs", URLprocessingProgress);
 			setURLprocessingProgress(prevState => {
 				return prevState.map(obj => {
 					return obj.url === data.url
@@ -65,6 +102,20 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 			});
 
 			if (data.currentStep === 5) {
+				/* const targetIndex: number = (_data: any) => {
+					for (let i = 0; i < fullURLs.length; i++) {
+						const url = fullURLs[i];
+						if (url === data.url) return i;
+						else return -1;
+					}
+				}; */
+				let rootURL = data.url.slice(
+					data.url.indexOf("//") + 2,
+					data.url.lastIndexOf("/")
+				);
+
+				updateWebPagesURLsFromDB(rootURL, data.url);
+
 				setURLsStatus(prevState => {
 					for (let i = 0; i < fullURLs.length; i++) {
 						const url = fullURLs[i];
@@ -111,6 +162,22 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 		}
 	};
 
+	// function handleChangeAll() {
+	// 	if (allURLsSelected) {
+	// 		setAllURLsSelected(false);
+	// 		for (let i = 0; i < ref.current.length; i++) {
+	// 			ref.current[i].checked = false;
+	// 		}
+	// 		setSelectedURLs([]);
+	// 	} else {
+	// 		setAllURLsSelected(true);
+	// 		for (let i = 0; i < ref.current.length; i++) {
+	// 			ref.current[i].checked = true;
+	// 			setSelectedURLs(ref.current.map(item => item.value));
+	// 		}
+	// 	}
+	// }
+
 	async function handleProcessButton(e: React.MouseEvent<HTMLButtonElement>) {
 		setURLsStatus(
 			fullURLs.map(url =>
@@ -136,11 +203,26 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 
 		if (!res.ok) {
 			const error = await res.text();
+			// throw new Error(error);
 			console.log("ERROR", error);
 		} else {
 			const data = await res.json();
 		}
 	}
+
+	const progressLabelClassName = (index: number) => {
+		return URLprocessingProgress[index].currentStep === 5
+			? "progressCounterCompleted"
+			: URLprocessingProgress[index].currentStep >= 0
+			? "progressCounterInProgress"
+			: "progressCounterHidden";
+	};
+
+	const handleToggle = (num: number) => {
+		console.log(num);
+	};
+
+	console.log("selectedURLs", selectedURLs);
 
 	const URLlist = (
 		<>
@@ -222,6 +304,28 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 					);
 				})}
 			</List>
+
+			{/* <div className={styles.wrapper}>
+				<label>
+					<input
+						type="checkbox"
+						name="link"
+						value={item}
+						onChange={handleChange}
+						ref={element => {
+							ref.current[index] = element!;
+						}}
+					/>
+					{item}
+				</label>
+				<label className={styles[progressLabelClassName(index)]}>
+					{URLprocessingProgress[index].currentStep}/5
+				</label>
+
+				{URLsStatus[index] === "processing" ? <LoadingSpinner /> : null}
+				{URLsStatus[index] === "succeeded" ? <SuccessIcon /> : null}
+				{URLsStatus[index] === "error" ? <ErrorIcon /> : null}
+			</div> */}
 		</>
 	);
 	return (

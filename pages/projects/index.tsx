@@ -1,30 +1,19 @@
 import { fetcher } from "../api/fetcher/fetcher";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
-import { CardActionArea, CardActions, Divider } from "@mui/material";
+import { CardActionArea, CardActions } from "@mui/material";
 import styles from "./projects.module.sass";
 import styles2 from "../../styles/Home.module.css";
 
-import ClickAwayListener from "@mui/material/ClickAwayListener";
-import Box from "@mui/material/Box";
-import Popper from "@mui/material/Popper";
-import Fade from "@mui/material/Fade";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import ManageSearchIcon from "@mui/icons-material/ManageSearch";
-import FindInPageIcon from "@mui/icons-material/FindInPage";
 
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-
-import PreviewIcon from "@mui/icons-material/Preview";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import MoreURLsActionButton from "../../components/Buttons/MoreURLsActionButton/MoreURLsActionButton";
 
-type WebSitesProps = {
-	webSites: websiteDataProps[];
+type WebSitesFetchedProps = {
+	webSitesFetched: websiteDataProps[];
 };
 
 type webSitesResponseProps = {
@@ -34,68 +23,56 @@ type webSitesResponseProps = {
 
 type websiteDataProps = {
 	id: number;
-	attributes: webSitesObjProps;
-};
-
-type webpageDataProps = {
-	id: number;
-	attributes: { URL: string };
+	attributes: {
+		Frontpage_Screenshot: {
+			data: {
+				attributes: {
+					url: string;
+				};
+			};
+		};
+		Root_URL: string;
+		Web_Vitals_Score: number;
+		created_at: string;
+		updated_at: string;
+		webpages: webPagesProps;
+	};
 };
 
 type webPagesProps = {
-	data: webpageDataProps[];
+	data: {
+		id: number;
+		attributes: { URL: string };
+	}[];
 };
 
-type webSitesObjProps = {
-	Frontpage_Screenshot: {
-		data: {
-			attributes: {
-				url: string;
-			};
-		};
-	};
-	Root_URL: string;
-	Web_Vitals_Score: number;
-	created_at: string;
-	updated_at: string;
-	webpages: webPagesProps;
-};
+export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
+	const [numOfStoredURLs, setNumOfStoredURLs] = useState<
+		{
+			rootWebsiteURL: string;
+			numOfWebpages: number;
+		}[]
+	>([{ rootWebsiteURL: "initialized", numOfWebpages: 0 }]);
 
-export default function WebSites({ webSites }: WebSitesProps) {
-	console.log(webSites);
-	if (webSites.length === 1) {
-		webSites = [...webSites, ...webSites, ...webSites];
-	}
-
-	const [open, setOpen] = useState(false);
-	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-		setAnchorEl(event.currentTarget);
-		setOpen(previousOpen => !previousOpen);
-	};
-
-	const handleClickAway = () => {
-		console.log("called!");
-		setOpen(false);
-	};
-
-	const canBeOpen = open && Boolean(anchorEl);
-	const id = canBeOpen ? "transition-popper" : undefined;
+	useEffect(() => {
+		setNumOfStoredURLs(prepareWebsitesArrayForNumOfURLs(webSitesFetched));
+	}, []);
 
 	return (
 		<div className={`${styles.main} ${styles2.main}`}>
-			{webSites.map(webSite => {
+			{webSitesFetched.map(webSite => {
 				const { Root_URL, Frontpage_Screenshot, Web_Vitals_Score, webpages } =
 					webSite.attributes;
-				/* const webPagesURLsStored: { id: number; attributes: { URL: string } } =
-					webpages.data; */
-				console.log("webpages.data", webpages.data);
+
+				const finalNumberOfStoredURLs = numOfStoredURLs.filter(obj => {
+					return Object.values(obj)[Object.keys(obj).indexOf(Root_URL)] !== -1;
+				})[0].numOfWebpages;
+
 				return (
 					<Card
 						sx={{ maxWidth: 345 }}
 						className={styles.webSiteCard}
-						onClick={handleClick}
+						// onClick={handleClick}
 					>
 						<CardActionArea>
 							<CardMedia
@@ -115,15 +92,16 @@ export default function WebSites({ webSites }: WebSitesProps) {
 								</p>
 								<p>
 									<b>Processed webpages: </b>
-									{webpages.data.length}
+									{finalNumberOfStoredURLs}
 								</p>
 							</CardContent>
 						</CardActionArea>
 						<CardActions>
 							<div style={{ margin: "0 .6em .6em" }}>
 								<MoreURLsActionButton
-									link={Root_URL}
-									URLsInDBasObj={webpages.data}
+									rootURL={Root_URL}
+									websiteID={webSite.id}
+									setNumOfStoredURLs={setNumOfStoredURLs}
 								/>
 
 								<IconButton aria-label="delete">
@@ -138,34 +116,15 @@ export default function WebSites({ webSites }: WebSitesProps) {
 	);
 }
 
-{
-	/* <div key={webSite.id} className={styles.webSiteCard}>
-						<h2>{Root_URL}</h2>
-						<img
-							src={
-								process.env.NEXT_PUBLIC_STRAPI_ROOT +
-								Frontpage_Screenshot.data.attributes.url
-							}
-							alt={"Image for " + Root_URL}
-						/>
-						<br />
-						Pages: {webpages.data.length}
-						<br />
-						WVS: {Web_Vitals_Score}
-					</div>  */
-}
-
 export async function getStaticProps() {
 	let webSitesResponse: webSitesResponseProps;
-	let webSites: websiteDataProps[] = [];
+	let webSitesFetched: websiteDataProps[] = [];
 
 	try {
 		webSitesResponse = await fetcher(
 			`${process.env.NEXT_PUBLIC_STRAPI_URL}/websites?populate=*`
 		);
-		console.log(webSitesResponse);
-		webSites = [...webSitesResponse.data];
-		console.log(webSites[0].attributes.webpages.data);
+		webSitesFetched = [...webSitesResponse.data];
 		// console.log(webSites[0].attributes.webpages);
 	} catch (err) {
 		console.log(err);
@@ -173,7 +132,16 @@ export async function getStaticProps() {
 
 	return {
 		props: {
-			webSites,
+			webSitesFetched,
 		},
 	};
+}
+
+function prepareWebsitesArrayForNumOfURLs(websitesArray: websiteDataProps[]) {
+	return websitesArray.map(website => {
+		return {
+			rootWebsiteURL: website.attributes.Root_URL,
+			numOfWebpages: website.attributes.webpages.data.length,
+		};
+	});
 }
