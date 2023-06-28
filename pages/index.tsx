@@ -67,7 +67,7 @@ export default function Home({ fullURLs }: HomeProps) {
 export async function getServerSideProps(context: { query: { link: string } }) {
 	const link = context.query.link || "";
 	const hrefs = [];
-	let fullURLs: string[] = [];
+	let fullURLs: (string | undefined)[] = [];
 
 	// console.log("This is link from getServerSideProps");
 	// console.log(link);
@@ -89,6 +89,16 @@ export async function getServerSideProps(context: { query: { link: string } }) {
 
 		// console.log("Links from index.tsx:");
 		fullURLs = makeURLsFromHrefs(link, hrefs);
+
+		fullURLs = [
+			...fullURLs.map(fullURL => {
+				if (fullURL !== undefined) {
+					if (fullURL.lastIndexOf("/") + 1 === fullURL.length)
+						return fullURL.slice(0, fullURL.lastIndexOf("/"));
+					else return fullURL;
+				}
+			}),
+		];
 		// takeScreenshotsForAllURLs(fullURLs);
 	} catch (err) {
 		console.log(err);

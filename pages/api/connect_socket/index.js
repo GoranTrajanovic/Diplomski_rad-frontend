@@ -1,9 +1,9 @@
 import { Server } from "socket.io";
 import { io } from "socket.io-client";
 
-let SOCKET;
-
 export default async function handler(req, res) {
+	let SOCKET;
+
 	if (res.socket.server.io) {
 		console.log("Socket connection already set up");
 		res.end();
@@ -14,6 +14,7 @@ export default async function handler(req, res) {
 	res.socket.server.io = ioInternal;
 
 	ioInternal.on("connection", socket => {
+		console.log("Connected to internal!");
 		SOCKET = socket;
 		socket.broadcast.emit(
 			"newIncomingMessage",
@@ -26,7 +27,11 @@ export default async function handler(req, res) {
 	const socket = io("http://127.0.0.1:8888");
 
 	socket.on("progress", data => {
-		SOCKET.emit("progress", data);
+		try {
+			SOCKET.emit("progress", data);
+		} catch (e) {
+			console.log("There was error in emmiting! ", e);
+		}
 	});
 
 	socket.on("no_root", data => {
@@ -39,5 +44,5 @@ export default async function handler(req, res) {
 		SOCKET.emit("error_in_processing", data);
 	});
 
-	// res.end();
+	res.end();
 }

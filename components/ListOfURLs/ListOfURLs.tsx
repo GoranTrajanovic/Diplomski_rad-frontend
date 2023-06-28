@@ -44,7 +44,6 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	const [URLsStatus, setURLsStatus] = useState<URLsStatusProps>(
 		fullURLs.map(() => "unselected")
 	);
-	const ref = useRef<HTMLInputElement[]>([]);
 
 	useEffect(() => {
 		socketInitializer();
@@ -53,42 +52,47 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 	async function socketInitializer() {
 		const res = await fetch("/api/connect_socket");
 
-		socket = io();
+		if (!res.ok) {
+			const error = await res.text();
+			console.log("ERROR - connecting sockets", error);
+		} else {
+			socket = io();
 
-		socket.on("progress", data => {
-			setURLprocessingProgress(prevState => {
-				return prevState.map(obj => {
-					return obj.url === data.url
-						? { url: obj.url, currentStep: ++obj.currentStep }
-						: { url: obj.url, currentStep: obj.currentStep };
+			socket.on("progress", data => {
+				setURLprocessingProgress(prevState => {
+					return prevState.map(obj => {
+						return obj.url === data.url
+							? { url: obj.url, currentStep: ++obj.currentStep }
+							: { url: obj.url, currentStep: obj.currentStep };
+					});
 				});
+
+				if (data.currentStep === 5) {
+					setURLsStatus(prevState => {
+						for (let i = 0; i < fullURLs.length; i++) {
+							const url = fullURLs[i];
+							if (url === data.url) prevState[i] = "succeeded";
+						}
+						return [...prevState];
+					});
+				}
 			});
 
-			if (data.currentStep === 5) {
+			socket.on("no_root", data => {
+				console.log("Ok, no root.");
+			});
+
+			socket.on("error_in_processing", data => {
+				console.log("Error received on UI socket: " + JSON.stringify(data));
 				setURLsStatus(prevState => {
 					for (let i = 0; i < fullURLs.length; i++) {
 						const url = fullURLs[i];
-						if (url === data.url) prevState[i] = "succeeded";
+						if (url === data.url) prevState[i] = "error";
 					}
 					return [...prevState];
 				});
-			}
-		});
-
-		socket.on("no_root", data => {
-			console.log("Ok, no root.");
-		});
-
-		socket.on("error_in_processing", data => {
-			console.log("Error received on UI socket: " + JSON.stringify(data));
-			setURLsStatus(prevState => {
-				for (let i = 0; i < fullURLs.length; i++) {
-					const url = fullURLs[i];
-					if (url === data.url) prevState[i] = "error";
-				}
-				return [...prevState];
 			});
-		});
+		}
 	}
 
 	const handleChange = (url: string) => () => {
@@ -136,7 +140,7 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 
 		if (!res.ok) {
 			const error = await res.text();
-			console.log("ERROR", error);
+			console.log("ERROR - posting screenshots", error);
 		} else {
 			const data = await res.json();
 		}

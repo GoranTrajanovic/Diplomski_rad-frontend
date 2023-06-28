@@ -58,6 +58,10 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 		setNumOfStoredURLs(prepareWebsitesArrayForNumOfURLs(webSitesFetched));
 	}, []);
 
+	const handleDelete = async (id: number) => {
+		console.log(id);
+	};
+
 	return (
 		<div className={`${styles.main} ${styles2.main}`}>
 			{webSitesFetched.map(webSite => {
@@ -104,9 +108,14 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 									setNumOfStoredURLs={setNumOfStoredURLs}
 								/>
 
-								<IconButton aria-label="delete">
-									<DeleteForeverIcon className={styles.delete_button} />
-								</IconButton>
+								<div
+									onClick={() => handleDelete(webSite.id)}
+									style={{ display: "inline" }}
+								>
+									<IconButton aria-label="delete">
+										<DeleteForeverIcon className={styles.delete_button} />
+									</IconButton>
+								</div>
 							</div>
 						</CardActions>
 					</Card>

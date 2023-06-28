@@ -1,4 +1,4 @@
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Box from "@mui/material/Box";
 import Popper from "@mui/material/Popper";
@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import PreviewIcon from "@mui/icons-material/Preview";
 import CircularProgress from "@mui/material/CircularProgress";
 import ListOfURLs from "@/components/ListOfURLs/ListOfURLs";
+import useDidMountEffect from "@/hooks/useDidMountEffect";
 
 type Data = {
 	newWebpageURLs: string[];
@@ -33,6 +34,42 @@ export default function MoreURLsActionButton({
 	const [newURLs, setNewURLs] = useState<string[]>([]);
 
 	const fullRootURL = "https://" + rootURL + "/";
+
+	useDidMountEffect(() => {
+		if (!open) {
+			console.log("open var changed to: ", open);
+
+			(async () => {
+				const res = await fetch("/api/check_webpage_urls", {
+					method: "POST",
+					body: JSON.stringify({ rootURL: fullRootURL, websiteID }),
+					headers: { "content-type": "application/json" },
+				});
+
+				if (!res.ok) {
+					const error = await res.text();
+					// throw new Error(error);
+				} else {
+					const data: Data = await res.json();
+
+					console.log(data);
+
+					setNewURLs(data.newWebpageURLs);
+					setNumOfStoredURLs((s: storedURLsType[]) => {
+						return s.map((obj: storedURLsType) => {
+							return {
+								rootWebsiteURL: obj.rootWebsiteURL,
+								numOfWebpages:
+									obj.rootWebsiteURL === rootURL
+										? data.numOfStoredURLs
+										: obj.numOfWebpages,
+							};
+						});
+					});
+				}
+			})();
+		}
+	}, [open]);
 
 	const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -67,32 +104,6 @@ export default function MoreURLsActionButton({
 
 	const handleClickAway = async () => {
 		setOpen(false);
-
-		const res = await fetch("/api/check_webpage_urls", {
-			method: "POST",
-			body: JSON.stringify({ rootURL: fullRootURL, websiteID }),
-			headers: { "content-type": "application/json" },
-		});
-
-		if (!res.ok) {
-			const error = await res.text();
-			// throw new Error(error);
-		} else {
-			const data: Data = await res.json();
-
-			setNewURLs(data.newWebpageURLs);
-			setNumOfStoredURLs((s: storedURLsType[]) => {
-				return s.map((obj: storedURLsType) => {
-					return {
-						rootWebsiteURL: obj.rootWebsiteURL,
-						numOfWebpages:
-							obj.rootWebsiteURL === rootURL
-								? data.numOfStoredURLs
-								: obj.numOfWebpages,
-					};
-				});
-			});
-		}
 	};
 
 	const canBeOpen = open && Boolean(anchorEl);
