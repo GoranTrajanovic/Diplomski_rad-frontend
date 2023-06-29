@@ -19,6 +19,14 @@
     flex-wrap: wrap
 
 .webSiteCard
+    opacity: 1
+    transition: 0.5s ease opacity
+    width: 350px
+
+    &.hidden
+        background-color: blue !important
+        opacity: 0
+
     h3
         text-transform: uppercase
         border-bottom: 1px dashed lightgray
@@ -26,7 +34,4 @@
 
     img
         object-fit: contain
-        height: 195px
-
-    .delete_button
-        color: #f44336
+        height: 195px 

@@ -87,6 +87,8 @@ export async function getServerSideProps(context: { query: { link: string } }) {
 			hrefs.push(await links.nth(i).getAttribute("href"));
 		}
 
+		console.log(fullURLs);
+
 		// console.log("Links from index.tsx:");
 		fullURLs = makeURLsFromHrefs(link, hrefs);
 

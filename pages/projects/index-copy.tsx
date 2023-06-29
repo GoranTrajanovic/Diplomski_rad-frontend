@@ -7,8 +7,11 @@ import { CardActionArea, CardActions } from "@mui/material";
 import styles from "./projects.module.sass";
 import styles2 from "../../styles/Home.module.css";
 
+import IconButton from "@mui/material/IconButton";
+
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import MoreURLsActionButton from "../../components/Buttons/MoreURLsActionButton/MoreURLsActionButton";
-import ModalCheckDeletion from "../../components/ModalCheckDeletion/ModalCheckDeletion";
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 type WebSitesFetchedProps = {
 	webSitesFetched: websiteDataProps[];
@@ -24,7 +27,6 @@ type websiteDataProps = {
 	attributes: {
 		Frontpage_Screenshot: {
 			data: {
-				id: number;
 				attributes: {
 					url: string;
 				};
@@ -46,6 +48,12 @@ type webPagesProps = {
 	}[];
 };
 
+type webPagesPopulatedProps = {
+	data: {
+		attributes: { Screenshots: Screenshots };
+	};
+};
+
 type Screenshots = { data: { id: number }[] };
 
 export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
@@ -59,6 +67,32 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 	useEffect(() => {
 		setNumOfStoredURLs(prepareWebsitesArrayForNumOfURLs(webSitesFetched));
 	}, []);
+
+	const handleDelete = async (
+		id: number,
+		webpages: webPagesProps,
+		Screenshots: Screenshots
+	) => {
+		// fetch IDs for images
+		// fetch IDs for webpages
+		// fetch IDs for website
+		const webPagesIDs = webpages.data.map(({ id }) => id);
+		let allImagesIDs: (number | void)[] = [];
+		let webSiteImagesIDs: number[] = [];
+		let webPagesImagesIDs: void | number[] = [];
+
+		Screenshots.data.map(({ id }) => webSiteImagesIDs.push(id));
+
+		fetchAllWebPagesImagesIDs(webPagesIDs)
+			.then(res => {
+				console.log(res);
+			})
+			.then(data => {
+				console.log(data);
+			});
+
+		// allImagesIDs = [...webSiteImagesIDs, ...webPagesImagesIDs];
+	};
 
 	return (
 		<div className={`${styles.main} ${styles2.main}`}>
@@ -80,7 +114,6 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 						sx={{ maxWidth: 345 }}
 						className={styles.webSiteCard}
 						// onClick={handleClick}
-						id={Root_URL}
 					>
 						<CardActionArea>
 							<CardMedia
@@ -112,13 +145,16 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 									setNumOfStoredURLs={setNumOfStoredURLs}
 								/>
 
-								<ModalCheckDeletion
-									webSiteRootURL={Root_URL}
-									webSiteID={webSite.id}
-									webpages={webpages}
-									frontPageScreenshot={Frontpage_Screenshot}
-									screenshots={Screenshots}
-								/>
+								<div
+									onClick={() =>
+										handleDelete(webSite.id, webpages, Screenshots)
+									}
+									style={{ display: "inline" }}
+								>
+									<IconButton aria-label="delete">
+										<DeleteForeverIcon className={styles.delete_button} />
+									</IconButton>
+								</div>
 							</div>
 						</CardActions>
 					</Card>
@@ -156,4 +192,48 @@ function prepareWebsitesArrayForNumOfURLs(websitesArray: websiteDataProps[]) {
 			numOfWebpages: website.attributes.webpages.data.length,
 		};
 	});
+}
+
+async function fetchAllWebPagesImagesIDs(webPagesIDs: number[]) {
+	let webPageResponse: webPagesPopulatedProps;
+	let imagesIDsBuffer: number[] = [];
+
+	try {
+		/* webPagesIDs.map(async id => {
+			webPageResponse = await fetcher(
+				`${process.env.NEXT_PUBLIC_STRAPI_URL}/webpages/${id}?populate=*`
+			);
+			imagesIDsBuffer = [
+				...imagesIDsBuffer,
+				...webPageResponse.data.attributes.Screenshots.data.map(({ id }) => id),
+			];
+		}); */
+
+		Promise.all([
+			webPagesIDs.map(async id => {
+				return fetcher(
+					`${process.env.NEXT_PUBLIC_STRAPI_URL}/webpages/${id}?populate=*`
+				);
+			}),
+		]).then(res => {
+			res[0].map(pro => {
+				pro.then(data => {
+					imagesIDsBuffer = [
+						...imagesIDsBuffer,
+						...data.data.attributes.Screenshots.data.map(
+							({ id }: { id: number }) => id
+						),
+					];
+				});
+			});
+			return imagesIDsBuffer;
+			// res.then(res => {
+			// 	res.map(data => {
+			// 		console.log(data.attributes.Screenshots.data);
+			// 	});
+			// });
+		});
+	} catch (err) {
+		console.log(err);
+	}
 }
