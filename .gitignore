@@ -39,3 +39,5 @@ next-env.d.ts
 !/.husky
 
 package-lock.json
+
+/app/screenshots/*
