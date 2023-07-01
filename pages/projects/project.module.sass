@@ -14,11 +14,11 @@
             justify-content: center
             gap: 35px
 
-            img
-                width: 40%
+            > div
+                width: 40% !important
 
-        img
-            width: 32%
+        > div
+            width: 32% !important
 
         
     .arrow_left_container, .arrow_right_container
@@ -33,6 +33,7 @@
         position: fixed
         top: 50%
         opacity: 0
+        z-index: 1000
 
         &:hover span
             max-width: 200px
@@ -40,7 +41,6 @@
 
         span
             max-width: 0px
-            max-height: 1em
             opacity: 0
             white-space: nowrap
             transition: .3s ease all

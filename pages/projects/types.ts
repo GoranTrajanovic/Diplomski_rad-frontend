@@ -7,6 +7,14 @@ export type webSitesResponseProps = {
 	meta: Object;
 };
 
+export type webPagesResponseProps = {
+	data: {
+		attributes: {
+			Screenshots: Screenshots;
+		};
+	};
+}[];
+
 export type webPagesProps = {
 	data: {
 		id: number;
@@ -15,7 +23,10 @@ export type webPagesProps = {
 };
 
 export type Screenshots = {
-	data: { id: number; attributes: { url: string } }[];
+	data: {
+		id: number;
+		attributes: { url: string; width: number; height: number };
+	}[];
 };
 
 export type websiteDataProps = {
