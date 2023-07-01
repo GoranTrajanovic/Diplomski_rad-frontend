@@ -1,5 +1,9 @@
 import { fetcher } from "../api/fetcher/fetcher";
-import type { webSitesResponseProps, websiteDataProps } from "./types";
+import type {
+	webSitesResponseProps,
+	websiteDataProps,
+	webPagesResponseProps,
+} from "./types";
 import WebpageSelectionButtons from "../../components/Buttons/SelectionButtons/WebpageSelectionButtons/WebpageSelectionButtons";
 import styles from "./project.module.sass";
 import Image from "next/image";
@@ -8,20 +12,33 @@ import DeviceSelectionButtons from "@/components/Buttons/SelectionButtons/Device
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import { IconButton } from "@mui/material";
+import ReactImageMagnify from "react-image-magnify";
+
+type webPagesImagesURIsProps = {
+	width: number;
+	height: number;
+	uri: string;
+}[];
 
 export default function WebSite({
 	webSiteData,
 	webPagesImagesURIs,
 }: {
 	webSiteData: websiteDataProps;
-	webPagesImagesURIs: string[];
+	webPagesImagesURIs: webPagesImagesURIsProps;
 }) {
 	const [selectedURL, setSelectedURL] = useState("/root");
 	const [selectedDevice, setSelectedDevice] = useState("desktop");
 	const { Root_URL, Web_Vitals_Score, webpages, Screenshots, slug } =
 		webSiteData.attributes;
-	const allRootImagesURIs = Screenshots.data.map(
-		screenshot => screenshot.attributes.url
+	const allRootImagesURIs: webPagesImagesURIsProps = Screenshots.data.map(
+		screenshot => {
+			return {
+				uri: screenshot.attributes.url,
+				width: screenshot.attributes.width,
+				height: screenshot.attributes.height,
+			};
+		}
 	);
 	const [URIsOfImagesToShow, setURIsOfImagesToShow] =
 		useState(allRootImagesURIs);
@@ -70,12 +87,14 @@ export default function WebSite({
 		}
 		setURIsOfImagesToShow(
 			webPagesImagesURIs.filter(
-				uri => uri.includes(selectedURL) && uri.includes(selectedDevice)
+				({ uri, width, height }) =>
+					uri.includes(selectedURL) && uri.includes(selectedDevice)
 			)
 		);
 	}, [selectedURL, selectedDevice]);
 
 	function handleSelectPreviousURL() {
+		if (window.scrollY >= 700) window.scrollTo({ top: 0, behavior: "smooth" });
 		setSelectedURL(prevState => {
 			return webPagesURLsWithoutRoot[
 				webPagesURLsWithoutRoot.indexOf(prevState) - 1
@@ -84,6 +103,7 @@ export default function WebSite({
 	}
 
 	function handleSelectNextURL() {
+		if (window.scrollY >= 700) window.scrollTo({ top: 0, behavior: "smooth" });
 		setSelectedURL(prevState => {
 			return webPagesURLsWithoutRoot[
 				webPagesURLsWithoutRoot.indexOf(prevState) + 1
@@ -128,8 +148,24 @@ export default function WebSite({
 					selectedDevice === "mobile" ? styles.mobile : ""
 				}`}
 			>
-				{URIsOfImagesToShow.map(uri => {
-					return <img src={process.env.NEXT_PUBLIC_STRAPI_ROOT + uri} alt="" />;
+				{URIsOfImagesToShow.map(({ uri, width, height }) => {
+					return (
+						<ReactImageMagnify
+							smallImage={{
+								alt: "yo",
+								isFluidWidth: true,
+								src: process.env.NEXT_PUBLIC_STRAPI_ROOT + uri,
+							}}
+							largeImage={{
+								src: process.env.NEXT_PUBLIC_STRAPI_ROOT + uri,
+								width,
+								height,
+							}}
+							enlargedImagePosition="over"
+							isHintEnabled={true}
+						/>
+					);
+					// return <img src={process.env.NEXT_PUBLIC_STRAPI_ROOT + uri} alt="" />;
 				})}
 			</div>
 			{selectedURL !==
@@ -185,14 +221,20 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 			);
 		}
 	);
-	const webPagesResponse = await Promise.all(webPages);
+	const webPagesResponse: webPagesResponseProps = await Promise.all(webPages);
 
-	const webPagesImagesURIs: string[] = [];
+	console.log(webPagesResponse[0].data.attributes.Screenshots.data);
+
+	const webPagesImagesURIs: webPagesImagesURIsProps = [];
 
 	webPagesResponse.map(obj => {
 		obj.data.attributes.Screenshots.data.map(
-			(img: { attributes: { url: any } }) =>
-				webPagesImagesURIs.push(img.attributes.url)
+			(img: { attributes: { url: string; width: number; height: number } }) =>
+				webPagesImagesURIs.push({
+					width: img.attributes.width,
+					height: img.attributes.height,
+					uri: img.attributes.url,
+				})
 		);
 	});
 
