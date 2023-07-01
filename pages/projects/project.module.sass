@@ -1,0 +1,61 @@
+.wrapper
+    position: relative
+    margin: 0 5em
+
+    .top_wrapper
+        width: 70%
+        margin: auto
+
+    .images_wrapper
+        display: flex
+        justify-content: space-between
+
+        &.mobile
+            justify-content: center
+            gap: 35px
+
+            img
+                width: 40%
+
+        img
+            width: 32%
+
+        
+    .arrow_left_container, .arrow_right_container
+        border-radius: 25px
+        font-size: 1em
+        transition: .3s ease all
+        display: flex
+        background: #1f70dd
+        border: 2px solid #fff
+        outline: 2px solid #1f70dd
+        color: #fff
+        position: fixed
+        top: 50%
+        opacity: 0
+
+        &:hover span
+            max-width: 200px
+            opacity: 1
+
+        span
+            max-width: 0px
+            max-height: 1em
+            opacity: 0
+            white-space: nowrap
+            transition: .3s ease all
+
+        svg
+            font-size: 2em
+
+    .arrow_left_container
+        left: 1em
+        
+        &:hover span
+            padding-right: .5em
+
+    .arrow_right_container
+        right: 1em
+        
+        &:hover span
+            padding-left: .5em

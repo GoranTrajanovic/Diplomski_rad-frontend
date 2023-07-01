@@ -22,13 +22,6 @@ export default function Navigation() {
 			>
 				Projects
 			</Button>
-			<Button
-				className={`${styles.link_button} ${
-					pathname === "/test.com" ? styles.active : ""
-				}`}
-			>
-				test.com
-			</Button>
 		</nav>
 	);
 }

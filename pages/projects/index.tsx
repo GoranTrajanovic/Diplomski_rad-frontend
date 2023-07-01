@@ -1,5 +1,6 @@
-import { fetcher } from "../api/fetcher/fetcher";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetcher } from "../api/fetcher/fetcher";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -10,43 +11,11 @@ import styles2 from "../../styles/Home.module.css";
 import MoreURLsActionButton from "../../components/Buttons/MoreURLsActionButton/MoreURLsActionButton";
 import ModalCheckDeletion from "../../components/ModalCheckDeletion/ModalCheckDeletion";
 
-type WebSitesFetchedProps = {
-	webSitesFetched: websiteDataProps[];
-};
-
-type webSitesResponseProps = {
-	data: websiteDataProps[];
-	meta: Object;
-};
-
-type websiteDataProps = {
-	id: number;
-	attributes: {
-		Frontpage_Screenshot: {
-			data: {
-				id: number;
-				attributes: {
-					url: string;
-				};
-			};
-		};
-		Root_URL: string;
-		Web_Vitals_Score: number;
-		created_at: string;
-		updated_at: string;
-		webpages: webPagesProps;
-		Screenshots: Screenshots;
-	};
-};
-
-type webPagesProps = {
-	data: {
-		id: number;
-		attributes: { URL: string };
-	}[];
-};
-
-type Screenshots = { data: { id: number }[] };
+import type {
+	WebSitesFetchedProps,
+	webSitesResponseProps,
+	websiteDataProps,
+} from "./types";
 
 export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 	const [numOfStoredURLs, setNumOfStoredURLs] = useState<
@@ -69,6 +38,7 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 					Web_Vitals_Score,
 					webpages,
 					Screenshots,
+					slug,
 				} = webSite.attributes;
 
 				const finalNumberOfStoredURLs = numOfStoredURLs.filter(obj => {
@@ -83,26 +53,28 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 						id={Root_URL}
 					>
 						<CardActionArea>
-							<CardMedia
-								component="img"
-								height="140"
-								image={
-									process.env.NEXT_PUBLIC_STRAPI_ROOT +
-									Frontpage_Screenshot.data.attributes.url
-								}
-								alt={Root_URL}
-							/>
-							<CardContent>
-								<h3>{Root_URL}</h3>
-								<p>
-									<b>WVS: </b>
-									{Web_Vitals_Score}
-								</p>
-								<p>
-									<b>Processed webpages: </b>
-									{finalNumberOfStoredURLs}
-								</p>
-							</CardContent>
+							<Link href={`/projects/${slug}`}>
+								<CardMedia
+									component="img"
+									height="140"
+									image={
+										process.env.NEXT_PUBLIC_STRAPI_ROOT +
+										Frontpage_Screenshot.data.attributes.url
+									}
+									alt={Root_URL}
+								/>
+								<CardContent>
+									<h3>{Root_URL}</h3>
+									<p>
+										<b>WVS: </b>
+										{Web_Vitals_Score}
+									</p>
+									<p>
+										<b>Processed webpages: </b>
+										{finalNumberOfStoredURLs}
+									</p>
+								</CardContent>
+							</Link>
 						</CardActionArea>
 						<CardActions>
 							<div style={{ margin: "0 .6em .6em" }}>

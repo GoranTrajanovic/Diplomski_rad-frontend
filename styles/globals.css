@@ -1,3 +1,8 @@
 * {
 	font-family: "Montserrat", "Helvetica Neue" !important;
 }
+
+a {
+	color: inherit;
+	text-decoration: inherit;
+}
