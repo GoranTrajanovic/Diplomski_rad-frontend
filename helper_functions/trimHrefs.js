@@ -8,8 +8,10 @@ export function trimHrefs(hrefArray) {
 			// else break; // can be only continue if we wanna include links from, lets say: footer
 			else continue; */
 		if (
-			hrefString.indexOf("/") === hrefString.lastIndexOf("/") ||
-			hrefString.lastIndexOf("/") + 1 === hrefString.length
+			(hrefString.indexOf("/") === hrefString.lastIndexOf("/") &&
+				!hrefString.includes("http")) ||
+			(hrefString.lastIndexOf("/") + 1 === hrefString.length &&
+				!hrefString.includes("http"))
 		)
 			newArray.push(hrefString);
 		else continue;
