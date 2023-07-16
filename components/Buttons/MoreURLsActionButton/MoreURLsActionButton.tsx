@@ -40,7 +40,7 @@ export default function MoreURLsActionButton({
 			console.log("open var changed to: ", open);
 
 			(async () => {
-				const res = await fetch("/api/check_webpage_urls", {
+				const res = await fetch("/api/check_new_webpage_urls", {
 					method: "POST",
 					body: JSON.stringify({ rootURL: fullRootURL, websiteID }),
 					headers: { "content-type": "application/json" },
@@ -75,7 +75,7 @@ export default function MoreURLsActionButton({
 		setAnchorEl(event.currentTarget);
 		setOpen(previousOpen => !previousOpen);
 
-		const res = await fetch("/api/check_webpage_urls", {
+		const res = await fetch("/api/check_new_webpage_urls", {
 			method: "POST",
 			body: JSON.stringify({ rootURL: fullRootURL, websiteID }),
 			headers: { "content-type": "application/json" },

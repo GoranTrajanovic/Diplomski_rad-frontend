@@ -78,7 +78,7 @@ export default async function handler(
 		res.status(404).json({
 			newWebpageURLs: [],
 			numOfStoredURLs: 0,
-			errorMsg: "Error occured in Nextjs API (check_webpage_urls).",
+			errorMsg: "Error occured in Nextjs API (check_new_webpage_urls).",
 		});
 	}
 }

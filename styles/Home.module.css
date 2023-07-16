@@ -10,6 +10,7 @@
 }
 
 .main .link_form {
+	position: relative;
 	display: flex;
 	justify-content: space-between;
 }
@@ -51,3 +52,65 @@
 .main label:hover {
 	cursor: pointer;
 } */
+
+.main button:hover {
+	cursor: pointer;
+}
+
+.main button[class*="submit-button"] {
+	min-width: 120px;
+}
+.main button[class*="submit-button"]:hover {
+	cursor: inherit;
+	background-color: #fff;
+}
+
+.main .submit-button-unsubmitted:hover {
+	cursor: pointer !important;
+	background-color: rgba(25, 118, 210, 0.04) !important;
+}
+
+.submit-button-loading,
+.submit-button-loading:hover {
+	border: 1px solid orange;
+}
+
+.loading_spinner {
+	color: rgb(254, 187, 62);
+}
+
+.submit-button-complete,
+.submit-button-complete:hover {
+	border: 1px solid rgb(8, 179, 8);
+}
+
+.submit-button-error,
+.submit-button-error:hover {
+	border: 1px solid red;
+}
+
+.submit-button-error > div svg:nth-child(2) {
+	right: -25%;
+	transform: translateX(25%);
+}
+
+.repeat-button {
+	position: absolute;
+	padding: 0 !important;
+	width: 50px;
+	height: 50px;
+	top: 50%;
+	right: -60px;
+	transform: translateY(-50%);
+	opacity: 1;
+	transition: 1.23s ease opacity;
+}
+
+.repeat-button > svg {
+	scale: 1.4;
+}
+
+.hidden {
+	position: absolute;
+	opacity: 0;
+}

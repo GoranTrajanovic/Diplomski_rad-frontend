@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { chromium, devices } from "playwright";
@@ -7,28 +7,52 @@ import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import SuccessIcon from "@/components/AnimatedIcons/SuccessIcon/SuccessIcon";
+import ErrorIcon from "@/components/AnimatedIcons/ErrorIcon/ErrorIcon";
+import CircularProgress from "@mui/material/CircularProgress";
+import ReplayIcon from "@mui/icons-material/Replay";
+import IconButton from "@mui/material/IconButton";
 
-type HomeProps = {
+type Data = {
 	fullURLs: string[];
+	errorMsg?: string;
 };
 
-export default function Home({ fullURLs }: HomeProps) {
+export default function Home() {
 	const [currentInputValue, setCurrentInputValue] = useState("");
-	const [buttonClicked, setButtonClicked] = useState(false);
+	const [rootURLsubmissionStatus, setRootURLsubmissionStatus] =
+		useState("unsubmitted");
 	const router = useRouter();
 
 	function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentInputValue(e.currentTarget.value);
+		setRootURLsubmissionStatus("unsubmitted");
 		console.log(currentInputValue);
 	}
 
-	function handleSubmitButton(e: React.MouseEvent<HTMLButtonElement>) {
-		console.log("Button clicked");
-		setButtonClicked(() => true);
+	async function handleSubmitButton(e: React.MouseEvent<HTMLButtonElement>) {
 		router.push(`/?link=${currentInputValue}`);
+		setRootURLsubmissionStatus("loading");
+
+		const res = await fetch("/api/fetch_all_webpage_urls", {
+			method: "POST",
+			body: JSON.stringify({ rootURL: currentInputValue }),
+			headers: { "content-type": "application/json" },
+		});
+
+		if (!res.ok) {
+			const error = await res.text();
+			// throw new Error(error);
+			setRootURLsubmissionStatus("error");
+		} else {
+			const data: Data = await res.json();
+			setRootURLsubmissionStatus("complete");
+
+			console.log(data);
+		}
 	}
 
-	console.log(fullURLs);
+	// console.log(fullURLs);
 
 	return (
 		<>
@@ -44,19 +68,56 @@ export default function Home({ fullURLs }: HomeProps) {
 						variant="outlined"
 						label="Insert your link here..."
 						className={styles.text_field}
+						autoComplete="on"
+						name="URL"
+						value={currentInputValue}
+						onChange={handleInputChange}
 					></TextField>
-					<Button variant="outlined">Submit</Button>
-				</div>
+					<Button
+						variant="outlined"
+						type="submit"
+						onClick={handleSubmitButton}
+						className={styles[`submit-button-${rootURLsubmissionStatus}`]}
+					>
+						{rootURLsubmissionStatus === "loading" ? (
+							<CircularProgress
+								className={styles.loading_spinner}
+								size="1.8rem"
+							/>
+						) : rootURLsubmissionStatus === "complete" ? (
+							<SuccessIcon />
+						) : rootURLsubmissionStatus === "error" ? (
+							<ErrorIcon />
+						) : (
+							"Submit"
+						)}
+					</Button>
 
-				<div>
-					{/* <Form
-						currentInputValue={currentInputValue}
-						handleInputChange={handleInputChange}
-						handleSubmitButton={handleSubmitButton}
-					/> */}
+					<IconButton
+						aria-label="delete"
+						className={
+							styles[
+								rootURLsubmissionStatus === "error" ? "repeat-button" : "hidden"
+							]
+						}
+						onClick={handleSubmitButton}
+					>
+						<ReplayIcon />
+					</IconButton>
 				</div>
+				<h2>
+					{rootURLsubmissionStatus === "loading"
+						? "Processing: "
+						: rootURLsubmissionStatus === "complete"
+						? "Processed: "
+						: rootURLsubmissionStatus === "error"
+						? "Error in processing: "
+						: null}
+					{rootURLsubmissionStatus === "unsubmitted" ? null : currentInputValue}
+				</h2>
 
-				<ListOfURLs fullURLs={fullURLs} />
+				{/* <ListOfURLs fullURLs={fullURLs} /> */}
+
 				{/* {buttonClicked && <FetchedLinks />} */}
 				{/* <BrowseAllButton /> */}
 			</main>
@@ -64,7 +125,7 @@ export default function Home({ fullURLs }: HomeProps) {
 	);
 }
 
-export async function getServerSideProps(context: { query: { link: string } }) {
+/* export async function getServerSideProps(context: { query: { link: string } }) {
 	const link = context.query.link || "";
 	const hrefs = [];
 	let fullURLs: (string | undefined)[] = [];
@@ -110,3 +171,4 @@ export async function getServerSideProps(context: { query: { link: string } }) {
 
 	return { props: { fullURLs } };
 }
+ */
