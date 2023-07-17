@@ -15,10 +15,13 @@ import { IconButton } from "@mui/material";
 import ReactImageMagnify from "react-image-magnify";
 
 type webPagesImagesURIsProps = {
+	order: number;
 	width: number;
 	height: number;
 	uri: string;
 }[];
+
+const IMAGES_ORDER_BY_BROWSER = ["chromium", "webkit", "firefox"];
 
 export default function WebSite({
 	webSiteData,
@@ -31,15 +34,29 @@ export default function WebSite({
 	const [selectedDevice, setSelectedDevice] = useState("desktop");
 	const { Root_URL, Web_Vitals_Score, webpages, Screenshots, slug } =
 		webSiteData.attributes;
-	const allRootImagesURIs: webPagesImagesURIsProps = Screenshots.data.map(
-		screenshot => {
+	let allRootImagesURIs: webPagesImagesURIsProps = Screenshots.data.map(
+		(screenshot, index) => {
+			const order = screenshot.attributes.url.includes(
+				IMAGES_ORDER_BY_BROWSER[0]
+			)
+				? 0
+				: screenshot.attributes.url.includes(IMAGES_ORDER_BY_BROWSER[1])
+				? 1
+				: 2;
 			return {
+				order,
 				uri: screenshot.attributes.url,
 				width: screenshot.attributes.width,
 				height: screenshot.attributes.height,
 			};
 		}
 	);
+	// allRootImagesURIs = [];
+
+	allRootImagesURIs = allRootImagesURIs.sort((a, b) => a.order - b.order);
+
+	console.log(allRootImagesURIs);
+
 	const [URIsOfImagesToShow, setURIsOfImagesToShow] =
 		useState(allRootImagesURIs);
 
@@ -51,7 +68,7 @@ export default function WebSite({
 
 	webPagesImagesURIs = [...allRootImagesURIs, ...webPagesImagesURIs];
 
-	useEffect(() => {
+	/* useEffect(() => {
 		const arrowLeftElement = document.getElementById("arrow-left");
 		const arrowRightElement = document.getElementById("arrow-right");
 
@@ -75,26 +92,26 @@ export default function WebSite({
 		return () => {
 			window.removeEventListener("scroll", scrollListener);
 		};
-	}, []);
+	}, []); */
 
 	useEffect(() => {
-		const arrowLeftElement = document.getElementById("arrow-left");
+		/* const arrowLeftElement = document.getElementById("arrow-left");
 		const arrowRightElement = document.getElementById("arrow-right");
 
 		if (window.innerHeight <= 1100) {
 			if (arrowLeftElement) arrowLeftElement.style.opacity = "1";
 			if (arrowRightElement) arrowRightElement.style.opacity = "1";
-		}
+		} */
 		setURIsOfImagesToShow(
 			webPagesImagesURIs.filter(
-				({ uri, width, height }) =>
-					uri.includes(selectedURL) && uri.includes(selectedDevice)
+				({ uri }) => uri.includes(selectedURL) && uri.includes(selectedDevice)
 			)
 		);
 	}, [selectedURL, selectedDevice]);
 
 	function handleSelectPreviousURL() {
-		if (window.scrollY >= 700) window.scrollTo({ top: 0, behavior: "smooth" });
+		console.log(window.scrollY);
+		if (window.scrollY >= 250) window.scrollTo({ top: 0, behavior: "smooth" });
 		setSelectedURL(prevState => {
 			return webPagesURLsWithoutRoot[
 				webPagesURLsWithoutRoot.indexOf(prevState) - 1
@@ -103,7 +120,8 @@ export default function WebSite({
 	}
 
 	function handleSelectNextURL() {
-		if (window.scrollY >= 700) window.scrollTo({ top: 0, behavior: "smooth" });
+		console.log(window.scrollY);
+		if (window.scrollY >= 250) window.scrollTo({ top: 0, behavior: "smooth" });
 		setSelectedURL(prevState => {
 			return webPagesURLsWithoutRoot[
 				webPagesURLsWithoutRoot.indexOf(prevState) + 1
@@ -149,21 +167,29 @@ export default function WebSite({
 				}`}
 			>
 				{URIsOfImagesToShow.map(({ uri, width, height }) => {
+					const imgObj = uri.includes("chromium")
+						? { alt: "chromium logo", src: "/chromium_logo.png" }
+						: uri.includes("webkit")
+						? { alt: "webkit logo", src: "/webkit_logo.png" }
+						: { alt: "firefox logo", src: "/firefox_logo.png" };
 					return (
-						<ReactImageMagnify
-							smallImage={{
-								alt: "yo",
-								isFluidWidth: true,
-								src: process.env.NEXT_PUBLIC_STRAPI_ROOT + uri,
-							}}
-							largeImage={{
-								src: process.env.NEXT_PUBLIC_STRAPI_ROOT + uri,
-								width,
-								height,
-							}}
-							enlargedImagePosition="over"
-							isHintEnabled={true}
-						/>
+						<div className={styles.image_container}>
+							<Image alt={imgObj.alt} src={imgObj.src} width="60" height="60" />
+							<ReactImageMagnify
+								smallImage={{
+									alt: "yo",
+									isFluidWidth: true,
+									src: process.env.NEXT_PUBLIC_STRAPI_ROOT + uri,
+								}}
+								largeImage={{
+									src: process.env.NEXT_PUBLIC_STRAPI_ROOT + uri,
+									width,
+									height,
+								}}
+								enlargedImagePosition="over"
+								isHintEnabled={true}
+							/>
+						</div>
 					);
 					// return <img src={process.env.NEXT_PUBLIC_STRAPI_ROOT + uri} alt="" />;
 				})}
@@ -225,18 +251,27 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 
 	console.log(webPagesResponse[0].data.attributes.Screenshots.data);
 
-	const webPagesImagesURIs: webPagesImagesURIsProps = [];
+	let webPagesImagesURIs: webPagesImagesURIsProps = [];
 
 	webPagesResponse.map(obj => {
 		obj.data.attributes.Screenshots.data.map(
-			(img: { attributes: { url: string; width: number; height: number } }) =>
+			(img: { attributes: { url: string; width: number; height: number } }) => {
+				const order = img.attributes.url.includes(IMAGES_ORDER_BY_BROWSER[0])
+					? 0
+					: img.attributes.url.includes(IMAGES_ORDER_BY_BROWSER[1])
+					? 1
+					: 2;
 				webPagesImagesURIs.push({
+					order,
 					width: img.attributes.width,
 					height: img.attributes.height,
 					uri: img.attributes.url,
-				})
+				});
+			}
 		);
 	});
+
+	webPagesImagesURIs = webPagesImagesURIs.sort((a, b) => a.order - b.order);
 
 	return {
 		props: {
