@@ -12,6 +12,7 @@ export type webPagesResponseProps = {
 		attributes: {
 			Screenshots: Screenshots;
 		};
+		id: number;
 	};
 }[];
 

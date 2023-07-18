@@ -15,6 +15,7 @@ import { IconButton } from "@mui/material";
 import ReactImageMagnify from "react-image-magnify";
 
 type webPagesImagesURIsProps = {
+	id: number;
 	order: number;
 	width: number;
 	height: number;
@@ -44,6 +45,7 @@ export default function WebSite({
 				? 1
 				: 2;
 			return {
+				id: screenshot.id,
 				order,
 				uri: screenshot.attributes.url,
 				width: screenshot.attributes.width,
@@ -54,8 +56,6 @@ export default function WebSite({
 	// allRootImagesURIs = [];
 
 	allRootImagesURIs = allRootImagesURIs.sort((a, b) => a.order - b.order);
-
-	console.log(allRootImagesURIs);
 
 	const [URIsOfImagesToShow, setURIsOfImagesToShow] =
 		useState(allRootImagesURIs);
@@ -110,7 +110,6 @@ export default function WebSite({
 	}, [selectedURL, selectedDevice]);
 
 	function handleSelectPreviousURL() {
-		console.log(window.scrollY);
 		if (window.scrollY >= 250) window.scrollTo({ top: 0, behavior: "smooth" });
 		setSelectedURL(prevState => {
 			return webPagesURLsWithoutRoot[
@@ -120,7 +119,6 @@ export default function WebSite({
 	}
 
 	function handleSelectNextURL() {
-		console.log(window.scrollY);
 		if (window.scrollY >= 250) window.scrollTo({ top: 0, behavior: "smooth" });
 		setSelectedURL(prevState => {
 			return webPagesURLsWithoutRoot[
@@ -166,14 +164,14 @@ export default function WebSite({
 					selectedDevice === "mobile" ? styles.mobile : ""
 				}`}
 			>
-				{URIsOfImagesToShow.map(({ uri, width, height }) => {
+				{URIsOfImagesToShow.map(({ id, uri, width, height }) => {
 					const imgObj = uri.includes("chromium")
 						? { alt: "chromium logo", src: "/chromium_logo.png" }
 						: uri.includes("webkit")
 						? { alt: "webkit logo", src: "/webkit_logo.png" }
 						: { alt: "firefox logo", src: "/firefox_logo.png" };
 					return (
-						<div className={styles.image_container}>
+						<div className={styles.image_container} key={id}>
 							<Image alt={imgObj.alt} src={imgObj.src} width="60" height="60" />
 							<ReactImageMagnify
 								smallImage={{
@@ -191,7 +189,6 @@ export default function WebSite({
 							/>
 						</div>
 					);
-					// return <img src={process.env.NEXT_PUBLIC_STRAPI_ROOT + uri} alt="" />;
 				})}
 			</div>
 			{selectedURL !==
@@ -232,6 +229,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }: { params: { slug: string } }) {
+	// fetching websiteToDisplay (root) and all connected webpages, separately
 	const websites: webSitesResponseProps = await fetcher(
 		`${process.env.NEXT_PUBLIC_STRAPI_URL}/websites?populate=*`
 	);
@@ -249,19 +247,37 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 	);
 	const webPagesResponse: webPagesResponseProps = await Promise.all(webPages);
 
-	console.log(webPagesResponse[0].data.attributes.Screenshots.data);
-
 	let webPagesImagesURIs: webPagesImagesURIsProps = [];
 
+	/* PART 1 beginning: sometimes there are no screenshots stored (unknown bug) for a webpage */
+	/* this code doesn't display such webpages */
+	let webPagesWithoutScreenshots = webPagesResponse.filter(
+		obj => !obj.data.attributes.Screenshots.data
+	);
+	let webPagesWithoutScreenshotsIDs: number[] = webPagesWithoutScreenshots.map(
+		obj => obj.data.id
+	);
+
+	websiteToDisplay.attributes.webpages.data =
+		websiteToDisplay.attributes.webpages.data.filter(
+			obj => !webPagesWithoutScreenshotsIDs.includes(obj.id)
+		);
+	/* PART 1 end */
+
 	webPagesResponse.map(obj => {
+		if (!obj.data.attributes.Screenshots.data) return; // sometimes there are no screenshots stored (unknown bug)
 		obj.data.attributes.Screenshots.data.map(
-			(img: { attributes: { url: string; width: number; height: number } }) => {
+			(img: {
+				id: number;
+				attributes: { url: string; width: number; height: number };
+			}) => {
 				const order = img.attributes.url.includes(IMAGES_ORDER_BY_BROWSER[0])
 					? 0
 					: img.attributes.url.includes(IMAGES_ORDER_BY_BROWSER[1])
 					? 1
 					: 2;
 				webPagesImagesURIs.push({
+					id: img.id,
 					order,
 					width: img.attributes.width,
 					height: img.attributes.height,
