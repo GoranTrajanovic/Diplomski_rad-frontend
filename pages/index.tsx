@@ -13,6 +13,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ReplayIcon from "@mui/icons-material/Replay";
 import IconButton from "@mui/material/IconButton";
 
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+
 type Data = {
 	fullURLs: string[];
 	errorMsg?: string;
@@ -22,6 +26,9 @@ export default function Home() {
 	const [currentInputValue, setCurrentInputValue] = useState("");
 	const [rootURLsubmissionStatus, setRootURLsubmissionStatus] =
 		useState("unsubmitted");
+	const [fullURLs, setFullURLs] = useState<string[]>([]);
+	const [modalOpen, setModalOpen] = useState(false);
+
 	const router = useRouter();
 
 	function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -49,8 +56,12 @@ export default function Home() {
 			setRootURLsubmissionStatus("complete");
 
 			console.log(data);
+			setFullURLs([...data.fullURLs]);
 		}
 	}
+
+	const handleModalOpen = () => setModalOpen(true);
+	const handleModalClose = () => setModalOpen(false);
 
 	// console.log(fullURLs);
 
@@ -105,18 +116,51 @@ export default function Home() {
 						<ReplayIcon />
 					</IconButton>
 				</div>
-				<h2>
-					{rootURLsubmissionStatus === "loading"
-						? "Processing: "
-						: rootURLsubmissionStatus === "complete"
-						? "Processed: "
-						: rootURLsubmissionStatus === "error"
-						? "Error in processing: "
-						: null}
-					{rootURLsubmissionStatus === "unsubmitted" ? null : currentInputValue}
-				</h2>
+				<div className={styles.processing_status}>
+					<span>
+						{rootURLsubmissionStatus === "loading"
+							? "Processing: "
+							: rootURLsubmissionStatus === "complete"
+							? "Processed: "
+							: rootURLsubmissionStatus === "error"
+							? "Error in processing: "
+							: null}
+					</span>
+					<span className={styles.bold}>
+						{rootURLsubmissionStatus === "unsubmitted"
+							? null
+							: currentInputValue}
+					</span>
+				</div>
 
-				{/* <ListOfURLs fullURLs={fullURLs} /> */}
+				<ListOfURLs fullURLs={fullURLs} handleModalOpen={handleModalOpen} />
+
+				<Modal
+					open={modalOpen}
+					onClose={handleModalClose}
+					aria-labelledby="modal-modal-title"
+					aria-describedby="modal-modal-description"
+				>
+					<Box className={styles.modal_box}>
+						<Typography
+							id="modal-modal-title"
+							variant="h6"
+							component="h2"
+							className={styles.modal_title}
+						>
+							No Root Selected
+						</Typography>
+						<Typography id="modal-modal-description" sx={{ mt: 2 }}>
+							Please select root URL for <b>{currentInputValue}</b> as there is
+							not one in database already. <br />
+							<br />
+							<u>All webpages are connected to the root webpage.</u>
+						</Typography>
+						<Button variant="text" onClick={handleModalClose}>
+							Ok
+						</Button>
+					</Box>
+				</Modal>
 
 				{/* {buttonClicked && <FetchedLinks />} */}
 				{/* <BrowseAllButton /> */}

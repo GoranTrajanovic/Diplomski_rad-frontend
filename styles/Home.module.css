@@ -27,6 +27,15 @@
 	width: 90%;
 }
 
+.main .bold {
+	font-weight: bold;
+}
+
+.main .processing_status {
+	font-size: 1.25em;
+	margin: 1em 0;
+}
+
 /* 
 .main div > input {
 	width: 400px;
@@ -113,4 +122,25 @@
 .hidden {
 	position: absolute;
 	opacity: 0;
+}
+
+.modal_box {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 500px;
+	background-color: #fff;
+	border: 1px solid #ef6767a6;
+	box-shadow: #5d5858 1px 1px 22px;
+	padding: 2rem;
+}
+
+.modal_box .modal_title {
+	color: #c30b0ba6;
+}
+
+.modal_box button {
+	float: right;
+	margin-top: 2em;
 }

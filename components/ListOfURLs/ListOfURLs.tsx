@@ -18,6 +18,7 @@ let socket;
 
 type ListOfURLsProps = {
 	fullURLs: string[];
+	handleModalOpen: () => void;
 };
 
 type URLprocessingProgressPropsObj = {
@@ -27,7 +28,10 @@ type URLprocessingProgressPropsObj = {
 
 type URLsStatusProps = ("unselected" | "processing" | "succeeded" | "error")[];
 
-export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
+export default function ListOfURLs({
+	fullURLs,
+	handleModalOpen,
+}: ListOfURLsProps) {
 	const [selectedURLs, setSelectedURLs] = useState<string[]>([]);
 	const [allURLsSelected, setAllURLsSelected] = useState<boolean>(false);
 	const [URLprocessingProgress, setURLprocessingProgress] = useState<
@@ -80,16 +84,19 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 
 			socket.on("no_root", data => {
 				console.log("Ok, no root.");
+				handleModalOpen();
 			});
 
 			socket.on("error_in_processing", data => {
 				console.log("Error received on UI socket: " + JSON.stringify(data));
 				setURLsStatus(prevState => {
+					const tempArray: URLsStatusProps = [];
 					for (let i = 0; i < fullURLs.length; i++) {
 						const url = fullURLs[i];
-						if (url === data.url) prevState[i] = "error";
+						if (url === data.url) tempArray.push("error");
+						else tempArray.push(prevState[i]);
 					}
-					return [...prevState];
+					return [...tempArray];
 				});
 			});
 		}
@@ -148,7 +155,7 @@ export default function ListOfURLs({ fullURLs }: ListOfURLsProps) {
 
 	const URLlist = (
 		<>
-			<List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+			<List className={styles.list}>
 				<ListItem
 					key={0}
 					secondaryAction={

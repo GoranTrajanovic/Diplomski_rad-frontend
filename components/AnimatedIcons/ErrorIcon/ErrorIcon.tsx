@@ -10,8 +10,8 @@ export default function ErrorIcon() {
 					cy="75"
 					r="10"
 					fill="none"
-					stroke-width="2"
-					stroke-miterlimit="10"
+					strokeWidth="2"
+					strokeMiterlimit="10"
 				/>
 			</svg>
 			<svg className={styles.cross}>
