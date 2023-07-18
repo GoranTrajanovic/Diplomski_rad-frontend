@@ -140,7 +140,7 @@ export default function MoreURLsActionButton({
 								}}
 							>
 								{newURLs.length ? (
-									<ListOfURLs fullURLs={newURLs} />
+									<ListOfURLs fullURLs={newURLs} handleModalOpen={() => {}} />
 								) : (
 									<CircularProgress size="2.1rem" style={{ color: "orange" }} />
 								)}

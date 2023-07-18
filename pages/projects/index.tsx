@@ -16,6 +16,7 @@ import type {
 	webSitesResponseProps,
 	websiteDataProps,
 } from "./types";
+import { rootCertificates } from "tls";
 
 export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 	const [numOfStoredURLs, setNumOfStoredURLs] = useState<
@@ -24,6 +25,7 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 			numOfWebpages: number;
 		}[]
 	>([{ rootWebsiteURL: "initialized", numOfWebpages: 0 }]);
+	let finalNumberOfStoredURLs = 0;
 
 	useEffect(() => {
 		setNumOfStoredURLs(prepareWebsitesArrayForNumOfURLs(webSitesFetched));
@@ -41,16 +43,19 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 					slug,
 				} = webSite.attributes;
 
-				const finalNumberOfStoredURLs = numOfStoredURLs.filter(obj => {
-					return Object.values(obj)[Object.keys(obj).indexOf(Root_URL)] !== -1;
-				})[0].numOfWebpages;
-
+				for (let i = 0; i < numOfStoredURLs.length; i++) {
+					const obj = numOfStoredURLs[i];
+					if (obj.rootWebsiteURL === Root_URL) {
+						finalNumberOfStoredURLs = obj.numOfWebpages;
+						break;
+					}
+				}
 				return (
 					<Card
 						sx={{ maxWidth: 345 }}
 						className={styles.webSiteCard}
 						// onClick={handleClick}
-						id={Root_URL}
+						key={webSite.id}
 					>
 						<CardActionArea>
 							<Link href={`/projects/${slug}`}>
@@ -122,10 +127,13 @@ export async function getStaticProps() {
 }
 
 function prepareWebsitesArrayForNumOfURLs(websitesArray: websiteDataProps[]) {
-	return websitesArray.map(website => {
+	let tempArray = [];
+	tempArray = websitesArray.map(website => {
 		return {
 			rootWebsiteURL: website.attributes.Root_URL,
 			numOfWebpages: website.attributes.webpages.data.length,
 		};
 	});
+
+	return tempArray;
 }
