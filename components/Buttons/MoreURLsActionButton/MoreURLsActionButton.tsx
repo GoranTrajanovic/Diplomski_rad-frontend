@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Box from "@mui/material/Box";
 import Popper from "@mui/material/Popper";
@@ -37,8 +37,6 @@ export default function MoreURLsActionButton({
 
 	useDidMountEffect(() => {
 		if (!open) {
-			console.log("open var changed to: ", open);
-
 			(async () => {
 				const res = await fetch("/api/check_new_webpage_urls", {
 					method: "POST",
@@ -51,8 +49,6 @@ export default function MoreURLsActionButton({
 					// throw new Error(error);
 				} else {
 					const data: Data = await res.json();
-
-					console.log(data);
 
 					setNewURLs(data.newWebpageURLs);
 					setNumOfStoredURLs((s: storedURLsType[]) => {

@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { chromium, devices } from "playwright";
 import { useRouter } from "next/router";
-import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
 import ListOfURLs from "../components/ListOfURLs/ListOfURLs";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -34,7 +32,6 @@ export default function Home() {
 	function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentInputValue(e.currentTarget.value);
 		setRootURLsubmissionStatus("unsubmitted");
-		console.log(currentInputValue);
 	}
 
 	async function handleSubmitButton(e: React.MouseEvent<HTMLButtonElement>) {
@@ -49,21 +46,16 @@ export default function Home() {
 
 		if (!res.ok) {
 			const error = await res.text();
-			// throw new Error(error);
 			setRootURLsubmissionStatus("error");
 		} else {
 			const data: Data = await res.json();
 			setRootURLsubmissionStatus("complete");
-
-			console.log(data);
 			setFullURLs([...data.fullURLs]);
 		}
 	}
 
 	const handleModalOpen = () => setModalOpen(true);
 	const handleModalClose = () => setModalOpen(false);
-
-	// console.log(fullURLs);
 
 	return (
 		<>
@@ -161,58 +153,7 @@ export default function Home() {
 						</Button>
 					</Box>
 				</Modal>
-
-				{/* {buttonClicked && <FetchedLinks />} */}
-				{/* <BrowseAllButton /> */}
 			</main>
 		</>
 	);
 }
-
-/* export async function getServerSideProps(context: { query: { link: string } }) {
-	const link = context.query.link || "";
-	const hrefs = [];
-	let fullURLs: (string | undefined)[] = [];
-
-	// console.log("This is link from getServerSideProps");
-	// console.log(link);
-
-	const browser = await chromium.launch();
-	const contextPW = await browser.newContext();
-	// const context = await browser.newContext(devices["iPhone 11"]);
-	const page = await contextPW.newPage();
-
-	try {
-		await page.goto(link);
-		const links = await page.locator("a");
-		const linksCount = await links.count();
-		const texts = await page.getByRole("link").allTextContents();
-
-		for (let i = 0; i < linksCount; i++) {
-			hrefs.push(await links.nth(i).getAttribute("href"));
-		}
-
-		// console.log("Links from index.tsx:");
-		fullURLs = makeURLsFromHrefs(link, hrefs);
-
-		fullURLs = [
-			...fullURLs.map(fullURL => {
-				if (fullURL !== undefined) {
-					if (fullURL.lastIndexOf("/") + 1 === fullURL.length)
-						return fullURL.slice(0, fullURL.lastIndexOf("/"));
-					else return fullURL;
-				}
-			}),
-		];
-		// takeScreenshotsForAllURLs(fullURLs);
-	} catch (err) {
-		console.log(err);
-	}
-
-	// Teardown
-	await contextPW.close();
-	await browser.close();
-
-	return { props: { fullURLs } };
-}
- */

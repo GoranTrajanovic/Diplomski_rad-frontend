@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import SuccessIcon from "../AnimatedIcons/SuccessIcon/SuccessIcon";
 import ErrorIcon from "../AnimatedIcons/ErrorIcon/ErrorIcon";
 import styles from "./ListOfURLs.module.css";

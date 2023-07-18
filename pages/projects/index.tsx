@@ -16,7 +16,6 @@ import type {
 	webSitesResponseProps,
 	websiteDataProps,
 } from "./types";
-import { rootCertificates } from "tls";
 
 export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 	const [numOfStoredURLs, setNumOfStoredURLs] = useState<
@@ -54,7 +53,6 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 					<Card
 						sx={{ maxWidth: 345 }}
 						className={styles.webSiteCard}
-						// onClick={handleClick}
 						key={webSite.id}
 					>
 						<CardActionArea>
@@ -114,7 +112,6 @@ export async function getStaticProps() {
 			`${process.env.NEXT_PUBLIC_STRAPI_URL}/websites?populate=*`
 		);
 		webSitesFetched = [...webSitesResponse.data];
-		// console.log(webSites[0].attributes.webpages);
 	} catch (err) {
 		console.log(err);
 	}
