@@ -1,0 +1,72 @@
+.wrapper {
+	position: relative;
+	margin: 0 5em;
+}
+.wrapper .top_wrapper {
+	width: 70%;
+	margin: auto;
+}
+.wrapper .images_wrapper {
+	display: flex;
+	justify-content: space-between;
+}
+.wrapper .images_wrapper.mobile {
+	justify-content: center;
+	gap: 35px;
+}
+.wrapper .images_wrapper.mobile > div {
+	width: 40% !important;
+}
+.wrapper .images_wrapper > div {
+	width: 32% !important;
+}
+.wrapper .arrow_left_container,
+.wrapper .arrow_right_container {
+	border-radius: 25px;
+	font-size: 1em;
+	transition: 0.3s ease all;
+	display: flex;
+	background: #1a1a1a;
+	border: 2px solid #fff;
+	outline: 2px solid #1a1a1a;
+	color: #fff;
+	position: fixed;
+	top: 50%;
+	z-index: 1000;
+}
+.wrapper .arrow_left_container:hover span,
+.wrapper .arrow_right_container:hover span {
+	max-width: 200px;
+	opacity: 1;
+}
+.wrapper .arrow_left_container span,
+.wrapper .arrow_right_container span {
+	max-width: 0px;
+	opacity: 0;
+	white-space: nowrap;
+	transition: 0.3s ease all;
+}
+.wrapper .arrow_left_container svg,
+.wrapper .arrow_right_container svg {
+	font-size: 2em;
+}
+.wrapper .arrow_left_container {
+	left: 1em;
+}
+.wrapper .arrow_left_container:hover span {
+	padding-right: 0.5em;
+}
+.wrapper .arrow_right_container {
+	right: 1em;
+}
+.wrapper .arrow_right_container:hover span {
+	padding-left: 0.5em;
+}
+.wrapper .image_container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.wrapper .image_container > img {
+	margin: 50px 0 25px 0;
+}

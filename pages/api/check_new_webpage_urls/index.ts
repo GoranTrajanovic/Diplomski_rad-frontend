@@ -37,15 +37,12 @@ export default async function handler(
 			await page.goto(rootURL);
 			const links = await page.locator("a");
 			const linksCount = await links.count();
-			const texts = await page.getByRole("link").allTextContents();
 
 			for (let i = 0; i < linksCount; i++) {
 				hrefs.push(await links.nth(i).getAttribute("href"));
 			}
 
-			// console.log("Links from index.tsx:");
 			allWebpageURLs = makeURLsFromHrefs(rootURL, hrefs);
-			// takeScreenshotsForAllURLs(allWebpageURLs);
 
 			const { data } = await fetcher(
 				`${process.env.NEXT_PUBLIC_STRAPI_URL}/websites/${websiteID}?populate=*`

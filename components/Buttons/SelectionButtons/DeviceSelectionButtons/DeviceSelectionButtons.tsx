@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "../SelectionButtons.module.sass";
+import styles from "../selectionButtons.module.sass";
 import DesktopWindowsOutlinedIcon from "@mui/icons-material/DesktopWindowsOutlined";
 import SmartphoneOutlinedIcon from "@mui/icons-material/SmartphoneOutlined";
 

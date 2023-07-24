@@ -28,7 +28,6 @@ export default async function handler(
 			await page.goto(rootURL);
 			const links = await page.locator("a");
 			const linksCount = await links.count();
-			const texts = await page.getByRole("link").allTextContents();
 
 			for (let i = 0; i < linksCount; i++) {
 				hrefs.push(await links.nth(i).getAttribute("href"));

@@ -139,6 +139,8 @@ export default function ListOfURLs({
 			})
 		);
 
+		console.log("selectedURLs", selectedURLs);
+
 		const res = await fetch("/api/post_screenshots", {
 			method: "POST",
 			body: JSON.stringify({ urlArray: selectedURLs }),

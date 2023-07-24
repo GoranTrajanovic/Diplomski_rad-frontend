@@ -5,7 +5,7 @@ import type {
 	webPagesResponseProps,
 } from "./types";
 import WebpageSelectionButtons from "../../components/Buttons/SelectionButtons/WebpageSelectionButtons/WebpageSelectionButtons";
-import styles from "./project.module.sass";
+import styles from "./projects.module.css";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import DeviceSelectionButtons from "@/components/Buttons/SelectionButtons/DeviceSelectionButtons/DeviceSelectionButtons";

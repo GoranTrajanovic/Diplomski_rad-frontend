@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "../SelectionButtons.module.sass";
+import styles from "../selectionButtons.module.sass";
 
 export default function WebpageSelectionButtons({
 	webPagesURLs,

@@ -35,23 +35,27 @@ export default function Home() {
 	}
 
 	async function handleSubmitButton(e: React.MouseEvent<HTMLButtonElement>) {
-		router.push(`/?link=${currentInputValue}`);
-		setRootURLsubmissionStatus("loading");
+		let rootURLforProcessing: string = "";
+		if (isURLvalid(currentInputValue)) {
+			rootURLforProcessing = makeURLcompatible(currentInputValue);
+			router.push(`/?link=${rootURLforProcessing}`);
+			setRootURLsubmissionStatus("loading");
 
-		const res = await fetch("/api/fetch_all_webpage_urls", {
-			method: "POST",
-			body: JSON.stringify({ rootURL: currentInputValue }),
-			headers: { "content-type": "application/json" },
-		});
+			const res = await fetch("/api/fetch_all_webpage_urls", {
+				method: "POST",
+				body: JSON.stringify({ rootURL: rootURLforProcessing }),
+				headers: { "content-type": "application/json" },
+			});
 
-		if (!res.ok) {
-			const error = await res.text();
-			setRootURLsubmissionStatus("error");
-		} else {
-			const data: Data = await res.json();
-			setRootURLsubmissionStatus("complete");
-			setFullURLs([...data.fullURLs]);
-		}
+			if (!res.ok) {
+				const error = await res.text();
+				setRootURLsubmissionStatus("error");
+			} else {
+				const data: Data = await res.json();
+				setRootURLsubmissionStatus("complete");
+				setFullURLs([...data.fullURLs]);
+			}
+		} else setRootURLsubmissionStatus("error");
 	}
 
 	const handleModalOpen = () => setModalOpen(true);
@@ -125,7 +129,9 @@ export default function Home() {
 					</span>
 				</div>
 
-				<ListOfURLs fullURLs={fullURLs} handleModalOpen={handleModalOpen} />
+				{rootURLsubmissionStatus !== "complete" ? null : (
+					<ListOfURLs fullURLs={fullURLs} handleModalOpen={handleModalOpen} />
+				)}
 
 				<Modal
 					open={modalOpen}
@@ -156,4 +162,17 @@ export default function Home() {
 			</main>
 		</>
 	);
+}
+
+function isURLvalid(url: string): boolean {
+	// const regex = new RegExp("^(https?://){0,1}[a-z0-9]+.[a-z]+$");
+	const regex = new RegExp("^(https?://){0,1}[a-z0-9]+(.[a-z]+)+/{0,1}$");
+	return regex.test(url);
+}
+
+function makeURLcompatible(url: string): string {
+	if (!url.includes("http")) url = "http://" + url;
+	if (url.lastIndexOf("/") + 1 !== url.length) url = url + "/";
+	// if (url.lastIndexOf("/") + 1 === url.length) tempURL = url.slice(0, -1);
+	return url;
 }

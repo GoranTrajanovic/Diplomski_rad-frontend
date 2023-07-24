@@ -18,7 +18,7 @@ export default function Navigation() {
 				className={`${styles.link_button} ${
 					pathname === "/projects" ? styles.active : ""
 				}`}
-				href="./projects"
+				href="/projects"
 			>
 				Projects
 			</Button>
