@@ -33,7 +33,7 @@ export default function WebpageSelectionButtons({
 			{webPagesURLs.map(url => {
 				return (
 					<button
-						className={`${styles.button} ${
+						className={`${styles.button}  ${styles.button_websites}  ${
 							url === selectedURL ? styles.selected : ""
 						}`}
 						key={url}

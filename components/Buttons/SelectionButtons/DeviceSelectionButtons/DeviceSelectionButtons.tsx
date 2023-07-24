@@ -31,7 +31,7 @@ export default function DeviceSelectionButtons({
 	return (
 		<div className={styles.wrapper}>
 			<button
-				className={`${styles.button} ${
+				className={`${styles.button} ${styles.button_devices} ${
 					selectedDevice === "desktop" ? styles.selected : ""
 				}`}
 				onClick={() => handleSelection("desktop")}
@@ -40,7 +40,7 @@ export default function DeviceSelectionButtons({
 				Desktop
 			</button>
 			<button
-				className={`${styles.button} ${
+				className={`${styles.button} ${styles.button_devices} ${
 					selectedDevice === "mobile" ? styles.selected : ""
 				}`}
 				onClick={() => handleSelection("mobile")}
