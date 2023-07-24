@@ -40,6 +40,7 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 					webpages,
 					Screenshots,
 					slug,
+					website_authors,
 				} = webSite.attributes;
 
 				for (let i = 0; i < numOfStoredURLs.length; i++) {
@@ -75,6 +76,15 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 									<p>
 										<b>Processed webpages: </b>
 										{finalNumberOfStoredURLs}
+									</p>
+									<p>
+										<b>Authors:</b>
+										{website_authors.data.map(obj => (
+											<span>
+												<br />
+												{`${obj.attributes.Name} ${obj.attributes.Surname}`}
+											</span>
+										))}
 									</p>
 								</CardContent>
 							</Link>

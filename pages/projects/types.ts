@@ -48,5 +48,14 @@ export type websiteDataProps = {
 		webpages: webPagesProps;
 		Screenshots: Screenshots;
 		slug: string;
+		website_authors: {
+			data: {
+				id: number;
+				attributes: {
+					Name: string;
+					Surname: string;
+				};
+			}[];
+		};
 	};
 };
