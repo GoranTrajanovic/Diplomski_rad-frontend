@@ -11,13 +11,14 @@ export default async function handler(
 	res: NextApiResponse<Data>
 ) {
 	const urlArray: string[] = req.body.urlArray;
+	const authorsIDs: string[] = req.body.authorsIDs;
 	// console.log("from post_ss", urlArray);
 	try {
 		const resExt = await fetch(
 			`${process.env.BACKEND_SCREENSHOTS_PROCESSING_URL}`,
 			{
 				method: "POST",
-				body: JSON.stringify({ urlArray }),
+				body: JSON.stringify({ urlArray, authorsIDs }),
 				headers: { "content-type": "application/json" },
 			}
 		);
