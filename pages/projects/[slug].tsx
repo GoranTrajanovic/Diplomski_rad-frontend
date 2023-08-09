@@ -152,6 +152,7 @@ export default function WebSite({
 								}}
 								enlargedImagePosition="over"
 								isHintEnabled={true}
+								style={{ cursor: "zoom-in" }}
 							/>
 						</div>
 					);

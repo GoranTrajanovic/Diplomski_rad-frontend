@@ -18,6 +18,7 @@ let socket;
 
 type ListOfURLsProps = {
 	fullURLs: string[];
+	authors: string[];
 	handleModalOpen: () => void;
 };
 
@@ -30,6 +31,7 @@ type URLsStatusProps = ("unselected" | "processing" | "succeeded" | "error")[];
 
 export default function ListOfURLs({
 	fullURLs,
+	authors,
 	handleModalOpen,
 }: ListOfURLsProps) {
 	const [selectedURLs, setSelectedURLs] = useState<string[]>([]);
@@ -139,11 +141,14 @@ export default function ListOfURLs({
 			})
 		);
 
-		console.log("selectedURLs", selectedURLs);
+		const authorsIDs: (string | undefined)[] = authors.map(author => {
+			const res = author.match(/\(([0-9]+)\)/);
+			if (res) return res[1];
+		});
 
 		const res = await fetch("/api/post_screenshots", {
 			method: "POST",
-			body: JSON.stringify({ urlArray: selectedURLs }),
+			body: JSON.stringify({ urlArray: selectedURLs, authorsIDs }),
 			headers: { "content-type": "application/json" },
 		});
 

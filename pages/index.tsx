@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { useRouter } from "next/router";
@@ -10,13 +10,20 @@ import ErrorIcon from "@/components/AnimatedIcons/ErrorIcon/ErrorIcon";
 import CircularProgress from "@mui/material/CircularProgress";
 import ReplayIcon from "@mui/icons-material/Replay";
 import IconButton from "@mui/material/IconButton";
+import Chip from "@mui/material/Chip";
+import Autocomplete from "@mui/material/Autocomplete";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 
-type Data = {
+type DataURLs = {
 	fullURLs: string[];
+	errorMsg?: string;
+};
+
+type DataAuthors = {
+	authorsArray: string[];
 	errorMsg?: string;
 };
 
@@ -26,34 +33,59 @@ export default function Home() {
 		useState("unsubmitted");
 	const [fullURLs, setFullURLs] = useState<string[]>([]);
 	const [modalOpen, setModalOpen] = useState(false);
+	const [allAuthors, setAllAuthors] = useState<string[]>([]);
+	const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
 
 	const router = useRouter();
+
+	useEffect(() => {
+		const keyDownHandler = (e: KeyboardEvent) => {
+			if (e.code === "Enter") handleSubmitButton();
+		};
+		document.addEventListener("keydown", keyDownHandler);
+
+		return () => {
+			document.removeEventListener("keydown", keyDownHandler);
+		};
+	}, []);
 
 	function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setCurrentInputValue(e.currentTarget.value);
 		setRootURLsubmissionStatus("unsubmitted");
 	}
 
-	async function handleSubmitButton(e: React.MouseEvent<HTMLButtonElement>) {
+	async function handleSubmitButton() {
 		let rootURLforProcessing: string = "";
 		if (isURLvalid(currentInputValue)) {
 			rootURLforProcessing = makeURLcompatible(currentInputValue);
 			router.push(`/?link=${rootURLforProcessing}`);
 			setRootURLsubmissionStatus("loading");
 
-			const res = await fetch("/api/fetch_all_webpage_urls", {
+			const resURLs = await fetch("/api/fetch_all_webpage_urls", {
 				method: "POST",
 				body: JSON.stringify({ rootURL: rootURLforProcessing }),
 				headers: { "content-type": "application/json" },
 			});
 
-			if (!res.ok) {
-				const error = await res.text();
+			if (!resURLs.ok) {
+				// const error = await resURLs.text();
 				setRootURLsubmissionStatus("error");
 			} else {
-				const data: Data = await res.json();
+				const data: DataURLs = await resURLs.json();
 				setRootURLsubmissionStatus("complete");
 				setFullURLs([...data.fullURLs]);
+			}
+
+			const resAuthors = await fetch("/api/fetch_all_authors_in_db", {
+				method: "GET",
+				headers: { "content-type": "application/json" },
+			});
+
+			if (!resURLs.ok) {
+				const error = await resURLs.text();
+			} else {
+				const data: DataAuthors = await resAuthors.json();
+				setAllAuthors(data.authorsArray);
 			}
 		} else setRootURLsubmissionStatus("error");
 	}
@@ -129,8 +161,31 @@ export default function Home() {
 					</span>
 				</div>
 
+				{rootURLsubmissionStatus !== "complete" &&
+				allAuthors.length === 0 ? null : (
+					<Autocomplete
+						multiple
+						onChange={(event, value) => setSelectedAuthors(value)}
+						id="tags-outlined"
+						options={allAuthors.map(author => author)}
+						getOptionLabel={author => author}
+						filterSelectedOptions
+						renderInput={params => (
+							<TextField
+								{...params}
+								label="Select Website Author(s)..."
+								placeholder="Favorites"
+							/>
+						)}
+					/>
+				)}
+
 				{rootURLsubmissionStatus !== "complete" ? null : (
-					<ListOfURLs fullURLs={fullURLs} handleModalOpen={handleModalOpen} />
+					<ListOfURLs
+						fullURLs={fullURLs}
+						authors={selectedAuthors}
+						handleModalOpen={handleModalOpen}
+					/>
 				)}
 
 				<Modal
