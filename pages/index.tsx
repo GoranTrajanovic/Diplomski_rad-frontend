@@ -10,7 +10,6 @@ import ErrorIcon from "@/components/AnimatedIcons/ErrorIcon/ErrorIcon";
 import CircularProgress from "@mui/material/CircularProgress";
 import ReplayIcon from "@mui/icons-material/Replay";
 import IconButton from "@mui/material/IconButton";
-import Chip from "@mui/material/Chip";
 import Autocomplete from "@mui/material/Autocomplete";
 
 import Box from "@mui/material/Box";
