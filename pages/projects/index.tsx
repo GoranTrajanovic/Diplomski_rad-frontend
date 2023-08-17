@@ -15,7 +15,7 @@ import type {
 	WebSitesFetchedProps,
 	webSitesResponseProps,
 	websiteDataProps,
-} from "./types";
+} from "../../misc/types";
 
 export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 	const [numOfStoredURLs, setNumOfStoredURLs] = useState<

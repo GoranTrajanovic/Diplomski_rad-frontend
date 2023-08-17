@@ -3,9 +3,9 @@ import type {
 	webSitesResponseProps,
 	websiteDataProps,
 	webPagesResponseProps,
-} from "./types";
+} from "../../misc/types";
 import WebpageSelectionButtons from "../../components/Buttons/SelectionButtons/WebpageSelectionButtons/WebpageSelectionButtons";
-import styles from "./projects.module.css";
+import styles from "./projectIndividual.module.sass";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import DeviceSelectionButtons from "@/components/Buttons/SelectionButtons/DeviceSelectionButtons/DeviceSelectionButtons";
@@ -33,8 +33,14 @@ export default function WebSite({
 }) {
 	const [selectedURL, setSelectedURL] = useState("/root");
 	const [selectedDevice, setSelectedDevice] = useState("desktop");
-	const { Root_URL, Web_Vitals_Score, webpages, Screenshots, slug } =
-		webSiteData.attributes;
+	const {
+		Root_URL,
+		Web_Vitals_Score,
+		webpages,
+		Screenshots,
+		slug,
+		website_authors,
+	} = webSiteData.attributes;
 	let allRootImagesURIs: webPagesImagesURIsProps = Screenshots.data.map(
 		(screenshot, index) => {
 			const order = screenshot.attributes.url.includes(
@@ -93,10 +99,22 @@ export default function WebSite({
 		});
 	}
 
+	let websiteAuthors = "";
+	for (let i = 0; i < website_authors.data.length - 1; i++) {
+		const obj = website_authors.data[i];
+		websiteAuthors += `${obj.attributes.Name} ${obj.attributes.Surname}, `;
+	}
+	websiteAuthors += `${
+		website_authors.data[website_authors.data.length - 1].attributes.Name
+	} ${
+		website_authors.data[website_authors.data.length - 1].attributes.Surname
+	}`;
+
 	return (
 		<div className={styles.wrapper}>
 			<div className={styles.top_wrapper}>
 				<h1>{Root_URL}</h1>
+				<p className={styles.authors}>{websiteAuthors}</p>
 				<DeviceSelectionButtons
 					selectedDevice={selectedDevice}
 					handleDeviceSelectionParent={setSelectedDevice}

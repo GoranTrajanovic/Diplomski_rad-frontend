@@ -15,6 +15,9 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
+import { fetcher } from "./api/fetcher/fetcher";
+import { websiteDataProps } from "./../misc/types";
+import getRootURL from "./../misc/getRootURL";
 
 type DataURLs = {
 	fullURLs: string[];
@@ -26,7 +29,11 @@ type DataAuthors = {
 	errorMsg?: string;
 };
 
-export default function Home() {
+export default function Home({
+	webSitesFetched,
+}: {
+	webSitesFetched: websiteDataProps[];
+}) {
 	const [currentInputValue, setCurrentInputValue] = useState("");
 	const [rootURLsubmissionStatus, setRootURLsubmissionStatus] =
 		useState("unsubmitted");
@@ -34,6 +41,7 @@ export default function Home() {
 	const [modalOpen, setModalOpen] = useState(false);
 	const [allAuthors, setAllAuthors] = useState<string[]>([]);
 	const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
+	const [storedAuthors, setStoredAuthors] = useState<string[]>([]);
 
 	const router = useRouter();
 
@@ -59,6 +67,16 @@ export default function Home() {
 			rootURLforProcessing = makeURLcompatible(currentInputValue);
 			router.push(`/?link=${rootURLforProcessing}`);
 			setRootURLsubmissionStatus("loading");
+
+			webSitesFetched.map(website => {
+				if (website.attributes.Root_URL === getRootURL(currentInputValue))
+					setStoredAuthors(
+						website.attributes.website_authors.data.map(
+							author =>
+								`${author.attributes.Name} ${author.attributes.Surname} (${author.id})`
+						)
+					);
+			});
 
 			const resURLs = await fetch("/api/fetch_all_webpage_urls", {
 				method: "POST",
@@ -168,6 +186,7 @@ export default function Home() {
 						options={allAuthors.map(author => author)}
 						getOptionLabel={author => author}
 						filterSelectedOptions
+						defaultValue={storedAuthors}
 						renderInput={params => (
 							<TextField
 								{...params}
@@ -215,6 +234,25 @@ export default function Home() {
 			</main>
 		</>
 	);
+}
+
+export async function getStaticProps() {
+	// let webSitesResponse: webSitesResponseProps;
+	let webSitesResponse;
+
+	try {
+		webSitesResponse = await fetcher(
+			`${process.env.NEXT_PUBLIC_STRAPI_URL}/websites?populate=*`
+		);
+	} catch (err) {
+		console.log(err);
+	}
+
+	return {
+		props: {
+			webSitesFetched: webSitesResponse.data,
+		},
+	};
 }
 
 function isURLvalid(url: string): boolean {
