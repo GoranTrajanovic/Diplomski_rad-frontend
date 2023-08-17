@@ -98,8 +98,8 @@ export default function Home({
 				headers: { "content-type": "application/json" },
 			});
 
-			if (!resURLs.ok) {
-				const error = await resURLs.text();
+			if (!resAuthors.ok) {
+				const error = await resAuthors.text();
 			} else {
 				const data: DataAuthors = await resAuthors.json();
 				setAllAuthors(data.authorsArray);
@@ -191,7 +191,7 @@ export default function Home({
 							<TextField
 								{...params}
 								label="Select Website Author(s)..."
-								placeholder="Favorites"
+								placeholder=""
 							/>
 						)}
 					/>

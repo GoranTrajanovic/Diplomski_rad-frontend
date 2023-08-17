@@ -1,5 +1,5 @@
 import * as React from "react";
-import { fetcher } from "../../pages/api/fetcher/fetcher";
+import { fetcher } from "../../../pages/api/fetcher/fetcher";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import Typography from "@mui/material/Typography";
-import styles from "./ModalCheckDeletion.module.sass";
+import styles from "./CheckDeletionModal.module.sass";
 
 const style = {
 	position: "absolute" as "absolute",
@@ -37,7 +37,7 @@ type webPagesPopulatedProps = {
 	};
 };
 
-export default function ModalCheckDeletion({
+export default function CheckDeletionModal({
 	webSiteRootURL,
 	webSiteID,
 	webpages,

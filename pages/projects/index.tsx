@@ -9,7 +9,7 @@ import styles from "./projects.module.sass";
 import styles2 from "../../styles/Home.module.css";
 
 import MoreURLsActionButton from "../../components/Buttons/MoreURLsActionButton/MoreURLsActionButton";
-import ModalCheckDeletion from "../../components/ModalCheckDeletion/ModalCheckDeletion";
+import CheckDeletionModal from "../../components/Modals/CheckDeletionModal/CheckDeletionModal";
 
 import type {
 	WebSitesFetchedProps,
@@ -97,7 +97,7 @@ export default function WebSites({ webSitesFetched }: WebSitesFetchedProps) {
 									setNumOfStoredURLs={setNumOfStoredURLs}
 								/>
 
-								<ModalCheckDeletion
+								<CheckDeletionModal
 									webSiteRootURL={Root_URL}
 									webSiteID={webSite.id}
 									webpages={webpages}

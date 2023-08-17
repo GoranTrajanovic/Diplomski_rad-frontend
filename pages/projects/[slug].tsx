@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import DeviceSelectionButtons from "@/components/Buttons/SelectionButtons/DeviceSelectionButtons/DeviceSelectionButtons";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
+import UpdateAuthorsModal from "@/components/Modals/UpdateAuthorsModal/UpdateAuthorsModal";
 import { IconButton } from "@mui/material";
 import ReactImageMagnify from "react-image-magnify";
 
@@ -109,12 +110,18 @@ export default function WebSite({
 	} ${
 		website_authors.data[website_authors.data.length - 1].attributes.Surname
 	}`;
+	const websiteAuthorsFormated = website_authors.data.map(author => {
+		return `${author.attributes.Name} ${author.attributes.Surname} (${author.id})`;
+	});
 
 	return (
 		<div className={styles.wrapper}>
 			<div className={styles.top_wrapper}>
 				<h1>{Root_URL}</h1>
-				<p className={styles.authors}>{websiteAuthors}</p>
+				<p className={styles.authors}>
+					{websiteAuthors}{" "}
+					<UpdateAuthorsModal websiteAuthors={websiteAuthorsFormated} />
+				</p>
 				<DeviceSelectionButtons
 					selectedDevice={selectedDevice}
 					handleDeviceSelectionParent={setSelectedDevice}
