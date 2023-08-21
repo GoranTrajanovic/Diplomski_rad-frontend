@@ -15,7 +15,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { fetcher } from "./api/fetcher/fetcher";
+import { fetcher } from "../misc/fetcher";
 import { websiteDataProps } from "./../misc/types";
 import getRootURL from "./../misc/getRootURL";
 

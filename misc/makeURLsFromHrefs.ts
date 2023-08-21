@@ -1,6 +1,6 @@
-import { trimHrefs } from "@/helper_functions/trimHrefs";
+import { trimHrefs } from "@/misc/trimHrefs";
 
-export function makeURLsFromHrefs(rootURL, hrefArray) {
+export function makeURLsFromHrefs(rootURL: string, hrefArray: string[]) {
 	let newArray = [];
 
 	// add https://.../sub-page/ for links that only have e.g. href="/about/"

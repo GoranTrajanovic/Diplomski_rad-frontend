@@ -1,4 +1,4 @@
-export function trimHrefs(hrefArray) {
+export function trimHrefs(hrefArray: string[]) {
 	const newArray = [];
 
 	for (let i = 0; i < hrefArray.length; i++) {

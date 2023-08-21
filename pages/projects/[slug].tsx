@@ -1,4 +1,4 @@
-import { fetcher } from "../api/fetcher/fetcher";
+import { fetcher } from "../../misc/fetcher";
 import type {
 	webSitesResponseProps,
 	websiteDataProps,

@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chromium } from "playwright";
-import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
-import { fetcher } from "../fetcher/fetcher";
+import { makeURLsFromHrefs } from "@/misc/makeURLsFromHrefs";
+import { fetcher } from "../../../misc/fetcher";
 import { isJsxAttributes } from "typescript";
 
 type Data = {
@@ -15,8 +15,8 @@ export default async function handler(
 	res: NextApiResponse<Data>
 ) {
 	const rootURL: string = req.body.rootURL || "";
-	let fullURLs = [];
-	let hrefs = [];
+	let fullURLs: string[] = new Array();
+	let hrefs: string[] = new Array();
 	// console.log("from post_ss", urlArray);
 	try {
 		const browser = await chromium.launch();
@@ -30,25 +30,24 @@ export default async function handler(
 			const linksCount = await links.count();
 
 			for (let i = 0; i < linksCount; i++) {
-				hrefs.push(await links.nth(i).getAttribute("href"));
+				let link = await links.nth(i).getAttribute("href");
+				if (link) hrefs.push(link);
 			}
 
 			// console.log("Links from index.tsx:");
 			fullURLs = makeURLsFromHrefs(rootURL, hrefs);
 
-			fullURLs = [
-				...fullURLs.map(fullURL => {
-					if (fullURL !== undefined) {
-						if (fullURL.lastIndexOf("/") + 1 === fullURL.length)
-							return fullURL.slice(0, fullURL.lastIndexOf("/"));
-						else return fullURL;
-					}
-				}),
-			];
+			fullURLs = fullURLs.map(fullURL => {
+				if (fullURL.lastIndexOf("/") + 1 === fullURL.length) {
+					let tempURL = fullURL.slice(0, fullURL.lastIndexOf("/"));
+					if (tempURL !== undefined) return tempURL;
+					else return "undefined";
+				} else return fullURL;
+			});
 			// takeScreenshotsForAllURLs(fullURLs);
 		} catch (err) {
 			console.log(err);
-			res.status(404).json({
+			res.status(500).json({
 				fullURLs: [],
 				errorMsg: "Error occured in Nextjs API (fetch_all_webpage_urls).",
 			});
@@ -63,7 +62,7 @@ export default async function handler(
 		// uploadToBackend(dir, URLWithoutHttps);
 	} catch (err) {
 		console.log(err);
-		res.status(404).json({
+		res.status(500).json({
 			fullURLs: [],
 			errorMsg: "Error occured in Nextjs API (fetch_all_webpage_urls).",
 		});

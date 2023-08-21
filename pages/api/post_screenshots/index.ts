@@ -39,6 +39,6 @@ export default async function handler(
 		// uploadToBackend(dir, URLWithoutHttps);
 	} catch (err) {
 		console.log(err);
-		res.status(404).json({ errorMsg: "Error occured in Nextjs API." });
+		res.status(500).json({ errorMsg: "Error occured in Nextjs API." });
 	}
 }

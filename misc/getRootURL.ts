@@ -1,4 +1,4 @@
-export default function getRootURL(URL) {
+export default function getRootURL(URL: string) {
 	// NOTICE: this logic takes care only of var:URL such as: https://someurl.com/sub and not more deep subdomains
 	let tempRootURL = URL.slice(URL.indexOf("//") + 2, URL.length);
 	if (tempRootURL.includes("/"))

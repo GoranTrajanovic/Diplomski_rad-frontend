@@ -1,4 +1,4 @@
-import { fetcher } from "../api/fetcher/fetcher";
+import { fetcher } from "../../misc/fetcher";
 
 export default function TestProjects() {
 	return (

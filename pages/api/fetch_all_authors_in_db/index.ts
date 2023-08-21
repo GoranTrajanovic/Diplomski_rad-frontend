@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fetcher } from "../fetcher/fetcher";
+import { fetcher } from "../../../misc/fetcher";
 import { isJsxAttributes } from "typescript";
 import { resolveMx } from "dns";
 
@@ -39,7 +39,7 @@ export default async function handler(
 		// uploadToBackend(dir, URLWithoutHttps);
 	} catch (err) {
 		console.log(err);
-		res.status(404).json({
+		res.status(500).json({
 			authorsArray: [],
 			errorMsg: "Error occured in Nextjs API (fetch_all_authors_in_db).",
 		});

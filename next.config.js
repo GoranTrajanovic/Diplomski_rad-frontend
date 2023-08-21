@@ -7,9 +7,6 @@ const nextConfig = {
 		includePaths: [path.join(__dirname, "styles")],
 		prependData: `@import "styles/globals.sass"`,
 	},
-	experimental: {
-		appDir: true,
-	},
 };
 
 module.exports = nextConfig;

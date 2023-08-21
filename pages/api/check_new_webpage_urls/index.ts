@@ -1,9 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chromium } from "playwright";
-import { makeURLsFromHrefs } from "@/helper_functions/makeURLsFromHrefs";
-import { fetcher } from "../fetcher/fetcher";
-import { isJsxAttributes } from "typescript";
+import { makeURLsFromHrefs } from "@/misc/makeURLsFromHrefs";
+import { fetcher } from "../../../misc/fetcher";
 
 type Data = {
 	newWebpageURLs: string[];
@@ -22,9 +21,9 @@ export default async function handler(
 	const rootURL: string = req.body.rootURL || "";
 	const websiteID: number = req.body.websiteID;
 
-	const hrefs = [];
-	let allWebpageURLs: string[] = [];
-	let newWebpageURLs: string[] = [];
+	const hrefs: string[] = new Array();
+	let allWebpageURLs: string[] = new Array();
+	let newWebpageURLs: string[] = new Array();
 	let numOfStoredURLs: number = 0;
 	// console.log("from post_ss", urlArray);
 	try {
@@ -39,7 +38,8 @@ export default async function handler(
 			const linksCount = await links.count();
 
 			for (let i = 0; i < linksCount; i++) {
-				hrefs.push(await links.nth(i).getAttribute("href"));
+				let link = await links.nth(i).getAttribute("href");
+				if (link) hrefs.push(link);
 			}
 
 			allWebpageURLs = makeURLsFromHrefs(rootURL, hrefs);
@@ -72,7 +72,7 @@ export default async function handler(
 		// uploadToBackend(dir, URLWithoutHttps);
 	} catch (err) {
 		console.log(err);
-		res.status(404).json({
+		res.status(500).json({
 			newWebpageURLs: [],
 			numOfStoredURLs: 0,
 			errorMsg: "Error occured in Nextjs API (check_new_webpage_urls).",
